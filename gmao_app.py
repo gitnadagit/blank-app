@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import datetime
@@ -108,7 +107,7 @@ if 'interventions' not in st.session_state:
         'Équipement': ['Presse hydraulique 100T', 'Tour CNC 5 axes', 'Four industriel 800°C', 
                       'Robot soudeur KUKA', 'Compresseur Atlas', 'Système convoyeur', 'Pompe centrifuge'],
         'Description': ['Panne moteur principal', 'Révision annuelle programmée', 'Changement résistances',
-                       'Calibration bras robotique', 'Fuite d'huile détectée', 'Changement rouleaux', 'Bruit anormal'],
+                       'Calibration bras robotique', 'Fuite d\'huile détectée', 'Changement rouleaux', 'Bruit anormal'],
         'Technicien': ['Jean DUPONT', 'Marie MARTIN', 'Paul BERNARD', 'Sophie LAURENT', 
                       'Marc DUBOIS', 'Léa PETIT', 'Thomas MOREAU'],
         'Date': ['25/11/2024', '26/11/2024', '27/11/2024', '28/11/2024', 
@@ -145,7 +144,7 @@ if 'stocks' not in st.session_state:
         'Référence': ['R001-2024', 'R002-2024', 'R003-2024', 'R004-2024', 'R005-2024',
                      'R006-2024', 'R007-2024', 'R008-2024', 'R009-2024'],
         'Désignation': ['Roulement 6205-2RS', 'Courroie synchronisée B85', 'Filtre à air industriel',
-                       'Joint d'étanchéité Ø150mm', 'Capteur température PT100', 'Moteur 5.5kW 400V',
+                       'Joint d\'étanchéité Ø150mm', 'Capteur température PT100', 'Moteur 5.5kW 400V',
                        'Variateur de fréquence', 'Contacteur 25A', 'Câble blindé 4x2.5mm²'],
         'Quantité': [15, 8, 22, 45, 12, 3, 7, 18, 55],
         'Seuil minimum': [5, 3, 10, 20, 5, 2, 4, 10, 30],
@@ -190,9 +189,7 @@ with st.sidebar:
     # Mode présentation
     presentation_mode = st.checkbox("🎤 Mode présentation", value=True)
     if presentation_mode:
-        st.info("**Présentation active**
-
-Toutes les données sont simulées pour la démonstration.")
+        st.info("**Présentation active**\\n\\nToutes les données sont simulées pour la démonstration.")
     
     st.markdown("---")
     st.caption("**GMAO Pro v1.0** • Présentation mardi")
@@ -862,7 +859,7 @@ elif menu == "📊 ANALYTICS & RAPPORTS":
         
         # Répartition des coûts
         couts_categories = pd.DataFrame({
-            'Catégorie': ['Main d'œuvre', 'Pièces détachées', 'Sous-traitance', 
+            'Catégorie': ['Main d\'œuvre', 'Pièces détachées', 'Sous-traitance', 
                          'Formation', 'Outillage', 'Contrôles'],
             'Montant (k€)': [65.2, 42.8, 28.5, 12.3, 8.7, 5.5],
             'Évolution': ['+5.2%', '+8.7%', '-2.1%', '0%', '+1.5%', '+3.2%']
@@ -887,26 +884,11 @@ elif menu == "📊 ANALYTICS & RAPPORTS":
         
         # Planning hebdomadaire simulé
         planning_data = {
-            'Lundi': ['INT045
-Presse', 'INT048
-Robot', '', 'INT052
-Tour', ''],
-            'Mardi': ['INT046
-Four', '', 'INT049
-Compresseur', '', 'INT053
-Convoyeur'],
-            'Mercredi': ['', 'INT047
-Pompe', 'INT050
-Générateur', 'INT051
-Système', ''],
-            'Jeudi': ['Réunion
-équipe', 'INT054
-Presse', '', 'INT056
-Robot', 'Formation'],
-            'Vendredi': ['INT055
-Four', '', 'INT057
-Compresseur', 'Contrôle
-qualité', '']
+            'Lundi': ['INT045\\nPresse', 'INT048\\nRobot', '', 'INT052\\nTour', ''],
+            'Mardi': ['INT046\\nFour', '', 'INT049\\nCompresseur', '', 'INT053\\nConvoyeur'],
+            'Mercredi': ['', 'INT047\\nPompe', 'INT050\\nGénérateur', 'INT051\\nSystème', ''],
+            'Jeudi': ['Réunion\\néquipe', 'INT054\\nPresse', '', 'INT056\\nRobot', 'Formation'],
+            'Vendredi': ['INT055\\nFour', '', 'INT057\\nCompresseur', 'Contrôle\\nqualité', '']
         }
         
         planning_df = pd.DataFrame(planning_data, index=['Jean', 'Marie', 'Paul', 'Sophie', 'Marc'])
