@@ -1,8 +1,7 @@
 import streamlit as st
 import pandas as pd
 import datetime
-import plotly.express as px
-import plotly.graph_objects as go
+# Supprime les imports plotly
 
 # ========== CONFIGURATION ==========
 st.set_page_config(
