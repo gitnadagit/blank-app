@@ -331,7 +331,7 @@ def show_login_page():
         st.markdown('</div>', unsafe_allow_html=True)
 
 def show_login_form():
-    """Affiche le formulaire de connexion"""
+    """Affiche le formulaire de connexion CORRIGÉ"""
     with st.form("login_form"):
         st.markdown('<div class="input-label">Nom d\'utilisateur</div>', unsafe_allow_html=True)
         username = st.text_input("", key="login_username", placeholder="Entrez votre nom d'utilisateur", label_visibility="collapsed")
@@ -339,16 +339,15 @@ def show_login_form():
         st.markdown('<div class="input-label">Mot de passe</div>', unsafe_allow_html=True)
         password = st.text_input("", type="password", key="login_password", placeholder="Entrez votre mot de passe", label_visibility="collapsed")
         
-        # Options supplémentaires
+        # Options supplémentaires (EN DEHORS DU FORM)
         col1, col2 = st.columns(2)
         with col1:
             remember_me = st.checkbox("Se souvenir de moi", value=True)
-        with col2:
-            if st.button("❓ Mot de passe oublié ?", use_container_width=True):
-                st.info("Contactez l'administrateur pour réinitialiser votre mot de passe")
         
-        # Bouton de connexion
-        if st.form_submit_button("🔓 Se connecter", type="primary", use_container_width=True):
+        # Bouton de connexion (submit du form)
+        submitted = st.form_submit_button("🔓 Se connecter", type="primary", use_container_width=True)
+        
+        if submitted:
             if not username or not password:
                 st.markdown('<div class="error-message">Veuillez remplir tous les champs</div>', unsafe_allow_html=True)
             else:
@@ -381,6 +380,12 @@ def show_login_form():
                         st.rerun()
                     else:
                         st.markdown('<div class="error-message">❌ Identifiants incorrects. Veuillez réessayer.</div>', unsafe_allow_html=True)
+    
+    # Bouton "Mot de passe oublié" EN DEHORS du formulaire
+    col1, col2 = st.columns([3, 1])
+    with col2:
+        if st.button("❓ Mot de passe oublié ?", use_container_width=True):
+            st.info("Contactez l'administrateur pour réinitialiser votre mot de passe")
 
 def show_register_form():
     """Affiche le formulaire d'inscription"""
@@ -412,7 +417,9 @@ def show_register_form():
         role = st.selectbox("", ["technicien", "manager"], key="reg_role", label_visibility="collapsed")
         
         # Bouton d'inscription
-        if st.form_submit_button("📝 Créer le compte", type="primary", use_container_width=True):
+        submitted = st.form_submit_button("📝 Créer le compte", type="primary", use_container_width=True)
+        
+        if submitted:
             # Validation
             if not all([full_name, username, password, confirm_password]):
                 st.markdown('<div class="error-message">Veuillez remplir tous les champs obligatoires</div>', unsafe_allow_html=True)
@@ -621,13 +628,15 @@ def show_interventions():
             
             col_submit1, col_submit2 = st.columns([1, 1])
             with col_submit1:
-                if st.form_submit_button("✅ Créer", type="primary", use_container_width=True):
+                submit_create = st.form_submit_button("✅ Créer", type="primary", use_container_width=True)
+                if submit_create:
                     st.success("Intervention créée avec succès !")
                     st.session_state.show_new_intervention = False
                     st.rerun()
             
             with col_submit2:
-                if st.form_submit_button("❌ Annuler", use_container_width=True):
+                submit_cancel = st.form_submit_button("❌ Annuler", use_container_width=True)
+                if submit_cancel:
                     st.session_state.show_new_intervention = False
                     st.rerun()
     
