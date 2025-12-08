@@ -326,9 +326,29 @@ def dashboard_page():
         st.metric("Urgentes", urgentes)
     
     with col4:
+        # CORRECTION ICI : 'Coût estimé (€)' et non 'C0dt estimé (€)'
         cout_total = st.session_state.interventions['Coût estimé (€)'].sum()
         st.metric("Coût total", f"{cout_total:,.0f} €".replace(",", " "))
     
+    # Graphiques
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("📈 Par statut")
+        statut_counts = st.session_state.interventions['Statut'].value_counts()
+        st.bar_chart(statut_counts)
+    
+    with col2:
+        st.subheader("👨‍🔧 Par technicien")
+        tech_counts = st.session_state.interventions['Technicien'].value_counts()
+        st.bar_chart(tech_counts)
+    
+    # Dernières interventions
+    st.subheader("🔄 Interventions récentes")
+    st.dataframe(
+        st.session_state.interventions.sort_values('Date', ascending=False).head(10),
+        use_container_width=True
+    )
     # Graphiques
     col1, col2 = st.columns(2)
     
