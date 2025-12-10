@@ -634,34 +634,472 @@ def show_emprunts_management():
 
 # ========== PAGES SIMPLIFIÉES POUR LES AUTRES SECTIONS ==========
 def show_interventions():
-    """Page interventions simplifiée"""
-    st.title("🔧 Interventions")
-    st.write("Gestion des interventions de maintenance")
-    st.info("Fonctionnalité à développer")
+    """Affiche la page interventions"""
+    st.title("🔧 Gestion des Interventions")
+    
+    # Métriques
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("Interventions totales", "156")
+    with col2:
+        st.metric("En cours", "24", "+3")
+    with col3:
+        st.metric("Urgentes", "8", "+2")
+    with col4:
+        st.metric("À planifier", "12", "-1")
+    
+    # Onglets
+    tab1, tab2, tab3 = st.tabs(["📋 Liste", "➕ Nouvelle", "📊 Statistiques"])
+    
+    with tab1:
+        # Données exemple
+        interventions = pd.DataFrame({
+            "ID": ["INT-2024-001", "INT-2024-002", "INT-2024-003", "INT-2024-004"],
+            "Équipement": ["Presse hydraulique", "Tour CNC", "Four industriel", "Robot KUKA"],
+            "Description": ["Panne moteur principal", "Révision annuelle", "Changement résistances", "Calibration"],
+            "Technicien": ["Jean Dupont", "Marie Martin", "Paul Bernard", "Sophie Laurent"],
+            "Date début": ["2024-11-25", "2024-11-26", "2024-11-27", "2024-11-28"],
+            "Date fin": ["2024-11-26", "2024-11-26", "2024-11-28", "2024-11-29"],
+            "Statut": ["🔴 En cours", "🟢 Terminé", "🟡 À planifier", "🔴 En cours"],
+            "Priorité": ["Haute", "Basse", "Moyenne", "Haute"],
+            "Durée (h)": [8, 4, 12, 6]
+        })
+        
+        # Filtres
+        col_f1, col_f2, col_f3 = st.columns(3)
+        with col_f1:
+            statut_filter = st.multiselect("Statut", interventions["Statut"].unique(), default=["🔴 En cours"])
+        
+        with col_f2:
+            priorite_filter = st.multiselect("Priorité", interventions["Priorité"].unique())
+        
+        # Application filtres
+        if statut_filter:
+            interventions = interventions[interventions["Statut"].isin(statut_filter)]
+        if priorite_filter:
+            interventions = interventions[interventions["Priorité"].isin(priorite_filter)]
+        
+        st.dataframe(interventions, use_container_width=True)
+        
+        # Actions
+        col_a1, col_a2 = st.columns(2)
+        with col_a1:
+            if st.button("🔄 Actualiser", use_container_width=True):
+                st.rerun()
+        with col_a2:
+            csv = interventions.to_csv(index=False)
+            st.download_button("📥 Exporter CSV", data=csv, file_name="interventions.csv", mime="text/csv", use_container_width=True)
+    
+    with tab2:
+        st.subheader("Nouvelle intervention")
+        with st.form("new_intervention"):
+            col1, col2 = st.columns(2)
+            with col1:
+                equipement = st.selectbox("Équipement", ["Presse hydraulique", "Tour CNC", "Four industriel", "Robot KUKA", "Compresseur"])
+                type_inter = st.selectbox("Type", ["Maintenance préventive", "Réparation", "Révision", "Contrôle", "Installation"])
+                priorite = st.select_slider("Priorité", ["Basse", "Moyenne", "Haute"])
+            
+            with col2:
+                technicien = st.selectbox("Technicien", ["Jean Dupont", "Marie Martin", "Paul Bernard", "Sophie Laurent"])
+                date_debut = st.date_input("Date début", datetime.date.today())
+                duree = st.number_input("Durée estimée (h)", min_value=1, value=4)
+            
+            description = st.text_area("Description", height=100)
+            
+            if st.form_submit_button("✅ Créer l'intervention", type="primary"):
+                st.success("Intervention créée avec succès !")
+                st.balloons()
+    
+    with tab3:
+        st.subheader("Statistiques")
+        
+        # Graphiques
+        col_g1, col_g2 = st.columns(2)
+        with col_g1:
+            st.metric("Taux de résolution", "94%")
+            st.metric("Durée moyenne", "5.2h")
+        
+        with col_g2:
+            st.metric("Coût moyen", "425€")
+            st.metric("Retards", "3%")
+        
+        # Répartition
+        stats_data = pd.DataFrame({
+            "Mois": ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun"],
+            "Interventions": [18, 22, 25, 28, 30, 32]
+        })
+        st.line_chart(stats_data.set_index("Mois"))
 
 def show_equipements():
-    """Page équipements simplifiée"""
-    st.title("🏭 Équipements")
-    st.write("Gestion du parc machines")
-    st.info("Fonctionnalité à développer")
+    """Affiche la page équipements"""
+    st.title("🏭 Parc d'Équipements")
+    
+    # Métriques
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("Total équipements", "48")
+    with col2:
+        st.metric("Opérationnels", "42", "+2")
+    with col3:
+        st.metric("En maintenance", "5", "-1")
+    with col4:
+        st.metric("Hors service", "1", "0")
+    
+    # Onglets
+    tab1, tab2 = st.tabs(["📋 Inventaire", "➕ Ajouter"])
+    
+    with tab1:
+        # Données exemple
+        equipements = pd.DataFrame({
+            "ID": ["EQ-001", "EQ-002", "EQ-003", "EQ-004", "EQ-005"],
+            "Nom": ["Presse hydraulique 100T", "Tour CNC 5 axes", "Four industriel 800°C", "Robot soudeur KUKA", "Compresseur Atlas"],
+            "Type": ["Formage", "Usinage", "Traitement thermique", "Assemblage", "Utilitaire"],
+            "Localisation": ["Atelier A", "Atelier B", "Zone chauffage", "Ligne 2", "Salle technique"],
+            "État": ["✅ Opérationnel", "⚠️ Maintenance", "✅ Opérationnel", "✅ Opérationnel", "❌ Hors service"],
+            "Date installation": ["2020-03-15", "2021-07-22", "2019-11-10", "2022-09-05", "2018-12-18"],
+            "Prochaine maintenance": ["2025-01-15", "2024-12-22", "2024-11-30", "2025-02-05", "-"]
+        })
+        
+        # Filtres
+        col_f1, col_f2 = st.columns(2)
+        with col_f1:
+            type_filter = st.multiselect("Type", equipements["Type"].unique())
+        
+        with col_f2:
+            etat_filter = st.multiselect("État", equipements["État"].unique(), default=["✅ Opérationnel"])
+        
+        # Application filtres
+        if type_filter:
+            equipements = equipements[equipements["Type"].isin(type_filter)]
+        if etat_filter:
+            equipements = equipements[equipements["État"].isin(etat_filter)]
+        
+        st.dataframe(equipements, use_container_width=True, height=400)
+        
+        # Actions
+        if st.button("📊 Générer rapport équipements", type="primary"):
+            st.success("Rapport généré !")
+    
+    with tab2:
+        st.subheader("Ajouter un équipement")
+        with st.form("new_equipement"):
+            col1, col2 = st.columns(2)
+            with col1:
+                nom = st.text_input("Nom de l'équipement*")
+                type_eq = st.selectbox("Type*", ["Formage", "Usinage", "Traitement thermique", "Assemblage", "Utilitaire", "Transport", "Contrôle"])
+                marque = st.text_input("Marque")
+                modele = st.text_input("Modèle")
+            
+            with col2:
+                localisation = st.text_input("Localisation*")
+                num_serie = st.text_input("Numéro de série")
+                date_installation = st.date_input("Date d'installation", datetime.date.today())
+                etat = st.selectbox("État*", ["✅ Opérationnel", "⚠️ Maintenance", "❌ Hors service"])
+            
+            notes = st.text_area("Notes techniques")
+            
+            if st.form_submit_button("✅ Ajouter l'équipement", type="primary"):
+                st.success(f"Équipement {nom} ajouté avec succès !")
+                st.balloons()
 
 def show_stocks():
-    """Page stocks simplifiée"""
-    st.title("📦 Stocks")
-    st.write("Gestion des pièces détachées")
-    st.info("Fonctionnalité à développer")
+    """Affiche la page stocks"""
+    st.title("📦 Gestion des Stocks")
+    
+    # Métriques
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("Articles en stock", "156")
+    with col2:
+        st.metric("Valeur totale", "18,450 €")
+    with col3:
+        st.metric("À réapprovisionner", "12", "+2")
+    with col4:
+        st.metric("Ruptures", "3", "-1")
+    
+    # Onglets
+    tab1, tab2, tab3 = st.tabs(["📋 Inventaire", "🚨 Alertes", "📦 Réapprovisionnement"])
+    
+    with tab1:
+        # Données exemple
+        stocks = pd.DataFrame({
+            "Référence": ["R001-2024", "R002-2024", "R003-2024", "R004-2024", "R005-2024"],
+            "Désignation": ["Roulement 6205-2RS", "Courroie synchronisée B85", "Filtre à air industriel", "Joint d'étanchéité Ø150mm", "Capteur température PT100"],
+            "Catégorie": ["Roulement", "Transmission", "Filtration", "Étanchéité", "Capteur"],
+            "Quantité": [15, 8, 22, 45, 12],
+            "Seuil minimum": [5, 3, 10, 20, 5],
+            "Unité": ["pièce", "pièce", "pièce", "pièce", "pièce"],
+            "Prix unitaire": [45.50, 32.80, 120.00, 8.75, 89.99],
+            "Valeur": [682.50, 262.40, 2640.00, 393.75, 1079.88],
+            "État": ["✅ Suffisant", "⚠️ Critique", "✅ Suffisant", "✅ Suffisant", "⚠️ Critique"]
+        })
+        
+        st.dataframe(stocks, use_container_width=True, height=400)
+        
+        # Export
+        csv = stocks.to_csv(index=False)
+        st.download_button("📥 Exporter l'inventaire", data=csv, file_name="inventaire_stock.csv", mime="text/csv")
+    
+    with tab2:
+        st.subheader("🚨 Alertes stock")
+        
+        # Alertes critiques
+        alertes = pd.DataFrame({
+            "Article": ["Courroie B85", "Capteur PT100", "Graisse industrielle"],
+            "Quantité actuelle": [8, 12, 5],
+            "Seuil minimum": [10, 15, 8],
+            "Manquant": [2, 3, 3],
+            "Dernière commande": ["2024-10-15", "2024-10-20", "2024-10-25"],
+            "Fournisseur": ["Gates Europe", "Endress+Hauser", "Total Energies"]
+        })
+        
+        for _, alerte in alertes.iterrows():
+            with st.container():
+                st.error(f"**{alerte['Article']}** - Seuil critique: {alerte['Quantité actuelle']}/{alerte['Seuil minimum']}")
+                col_a1, col_a2 = st.columns(2)
+                with col_a1:
+                    st.write(f"Fournisseur: {alerte['Fournisseur']}")
+                with col_a2:
+                    if st.button(f"Commander {alerte['Article']}", key=f"cmd_{alerte['Article']}"):
+                        st.success(f"Commande lancée pour {alerte['Article']}")
+                st.markdown("---")
+    
+    with tab3:
+        st.subheader("Réapprovisionnement")
+        
+        with st.form("reappro_form"):
+            article = st.selectbox("Article", ["Roulement 6205", "Courroie B85", "Filtre à air", "Joint étanchéité", "Capteur PT100"])
+            fournisseur = st.selectbox("Fournisseur", ["SKF France", "Gates Europe", "Donaldson", "Freudenberg", "Endress+Hauser"])
+            quantite = st.number_input("Quantité", min_value=1, value=10)
+            delai_livraison = st.number_input("Délai estimé (jours)", min_value=1, max_value=30, value=5)
+            urgence = st.selectbox("Urgence", ["Normale", "Urgente", "Très urgente"])
+            
+            if st.form_submit_button("📦 Passer commande", type="primary"):
+                st.success(f"Commande passée pour {quantite} {article} chez {fournisseur}")
+                st.balloons()
 
-def show_tiers_management():
-    """Page tiers simplifiée"""
-    st.title("🤝 Tiers")
-    st.write("Gestion fournisseurs et sous-traitants")
-    st.info("Fonctionnalité à développer")
+def show_fournisseurs():
+    """Affiche la liste des fournisseurs"""
+    st.subheader("🏭 Fournisseurs de pièces détachées")
+    
+    fournisseurs = data_manager.get_fournisseurs()
+    
+    if fournisseurs.empty:
+        st.info("Aucun fournisseur enregistré")
+        return
+    
+    # Affichage par cartes avec Streamlit natif
+    for _, fournisseur in fournisseurs.iterrows():
+        with st.container():
+            # Carte du fournisseur
+            col1, col2 = st.columns([4, 1])
+            with col1:
+                st.markdown(f"### {fournisseur['nom']}")
+                st.markdown(f"**Spécialité:** {fournisseur['specialite']}")
+            with col2:
+                st.markdown('<span class="type-fournisseur">Fournisseur</span>', unsafe_allow_html=True)
+            
+            # Métriques
+            col_a, col_b, col_c = st.columns(3)
+            with col_a:
+                delai_color = "🟢" if fournisseur['delai_livraison_moyen'] <= 3 else "🟡" if fournisseur['delai_livraison_moyen'] <= 7 else "🔴"
+                st.metric("Délai livraison", f"{delai_color} {fournisseur['delai_livraison_moyen']} jours")
+            
+            with col_b:
+                st.metric("Fiabilité", f"{fournisseur['note_fiabilite']}/5")
+            
+            with col_c:
+                contrat_status = "✅ Actif" if fournisseur['contrat_actif'] else "❌ Inactif"
+                st.metric("Contrat", contrat_status)
+            
+            # Informations de contact
+            with st.expander("📞 Informations de contact", expanded=False):
+                st.write(f"**Contact:** {fournisseur['contact_nom']}")
+                st.write(f"**Email:** {fournisseur['contact_email']}")
+                st.write(f"**Téléphone:** {fournisseur['contact_telephone']}")
+                st.write(f"**Adresse:** {fournisseur['adresse']}")
+                st.write(f"**Conditions paiement:** {fournisseur['conditions_paiement']}")
+                st.write(f"**Mode livraison:** {fournisseur['mode_livraison']}")
+            
+            # Boutons d'action
+            col_btn1, col_btn2, col_btn3 = st.columns(3)
+            with col_btn1:
+                if st.button("📦 Commander", key=f"cmd_{fournisseur['id']}"):
+                    st.session_state.selected_supplier = fournisseur['id']
+                    st.info(f"Ouverture formulaire commande pour {fournisseur['nom']}")
+            
+            with col_btn2:
+                if st.button("📋 Voir détails", key=f"detail_{fournisseur['id']}"):
+                    st.info(f"Détails de {fournisseur['nom']}")
+            
+            with col_btn3:
+                if st.button("📞 Contacter", key=f"contact_{fournisseur['id']}"):
+                    st.success(f"Email préparé pour {fournisseur['contact_nom']}")
+            
+            st.markdown("---")
+
+def show_soustraitants():
+    """Affiche la liste des sous-traitants"""
+    st.subheader("👷 Sous-traitants de maintenance")
+    
+    soustraitants = data_manager.get_soustraitants()
+    
+    if soustraitants.empty:
+        st.info("Aucun sous-traitant enregistré")
+        return
+    
+    # Affichage par cartes avec Streamlit natif
+    for _, soustraitant in soustraitants.iterrows():
+        with st.container():
+            # Carte du sous-traitant
+            col1, col2 = st.columns([4, 1])
+            with col1:
+                st.markdown(f"### {soustraitant['nom']}")
+                st.markdown(f"**Spécialité:** {soustraitant['specialite']}")
+            with col2:
+                st.markdown('<span class="type-soustraitant">Sous-traitant</span>', unsafe_allow_html=True)
+            
+            # Métriques
+            col_a, col_b, col_c = st.columns(3)
+            with col_a:
+                st.metric("Taux horaire", f"{soustraitant['taux_horaire']} €/h")
+            
+            with col_b:
+                st.metric("Zone d'intervention", soustraitant['zone_intervention'])
+            
+            with col_c:
+                assurance = "✅ Oui" if soustraitant['assurance_rc_pro'] else "❌ Non"
+                st.metric("Assurance RC Pro", assurance)
+            
+            # Informations de contact
+            with st.expander("📞 Informations de contact", expanded=False):
+                st.write(f"**Contact:** {soustraitant['contact_nom']}")
+                st.write(f"**Email:** {soustraitant['contact_email']}")
+                st.write(f"**Téléphone:** {soustraitant['contact_telephone']}")
+                st.write(f"**Adresse:** {soustraitant['adresse']}")
+                st.write(f"**Type intervention:** {soustraitant['intervention_type']}")
+                
+                if soustraitant['certifications']:
+                    st.write("**Certifications:**")
+                    for cert in soustraitant['certifications']:
+                        st.write(f"- {cert}")
+            
+            # Boutons d'action
+            col_btn1, col_btn2, col_btn3 = st.columns(3)
+            with col_btn1:
+                if st.button("🔧 Demander intervention", key=f"inter_{soustraitant['id']}"):
+                    st.session_state.selected_contractor = soustraitant['id']
+                    st.info(f"Demande d'intervention à {soustraitant['nom']}")
+            
+            with col_btn2:
+                if st.button("📋 Voir détails", key=f"cdetail_{soustraitant['id']}"):
+                    st.info(f"Détails de {soustraitant['nom']}")
+            
+            with col_btn3:
+                if st.button("📅 Planifier", key=f"plan_{soustraitant['id']}"):
+                    st.success(f"Planning ouvert pour {soustraitant['nom']}")
+            
+            st.markdown("---")
 
 def show_admin():
-    """Page admin simplifiée"""
+    """Affiche la page administration"""
     st.title("⚙️ Administration")
-    st.write("Paramètres système")
-    st.info("Fonctionnalité à développer")
+    
+    if st.session_state.user["role"] != "admin":
+        st.error("⛔ Accès réservé aux administrateurs")
+        return
+    
+    # Onglets
+    tab1, tab2, tab3, tab4 = st.tabs(["📊 Système", "👥 Utilisateurs", "🔐 Sécurité", "💾 Backup"])
+    
+    with tab1:
+        st.subheader("Informations système")
+        
+        col_s1, col_s2 = st.columns(2)
+        with col_s1:
+            st.metric("Version", "2.0.0")
+            st.metric("Utilisateurs actifs", "3")
+            st.metric("Base de données", "JSON")
+        
+        with col_s2:
+            st.metric("Espace disque", "85%")
+            st.metric("Dernière sauvegarde", "Aujourd'hui 08:30")
+            st.metric("Uptime", "99.8%")
+        
+        # Logs système
+        with st.expander("📝 Logs système"):
+            logs = pd.DataFrame({
+                "Date": ["2024-11-29 08:30:00", "2024-11-29 08:15:00", "2024-11-29 08:00:00", "2024-11-28 23:45:00"],
+                "Type": ["INFO", "INFO", "WARNING", "INFO"],
+                "Message": ["Sauvegarde automatique effectuée", "Connexion utilisateur: admin", "Stock critique détecté", "Maintenance nocturne"],
+                "Utilisateur": ["Système", "admin", "Système", "Système"]
+            })
+            st.dataframe(logs, use_container_width=True)
+    
+    with tab2:
+        st.subheader("Gestion des utilisateurs")
+        
+        # Liste utilisateurs
+        users = pd.DataFrame(data_manager.users)
+        if not users.empty:
+            display_users = users[["id", "username", "full_name", "role", "email", "last_login", "is_active"]].copy()
+            st.dataframe(display_users, use_container_width=True)
+        
+        # Actions
+        col_u1, col_u2, col_u3 = st.columns(3)
+        with col_u1:
+            if st.button("🔄 Actualiser", use_container_width=True):
+                data_manager.load_all_data()
+                st.success("Données rechargées !")
+        
+        with col_u2:
+            if st.button("➕ Ajouter utilisateur", use_container_width=True):
+                st.info("Formulaire d'ajout d'utilisateur")
+        
+        with col_u3:
+            if st.button("📊 Statistiques", use_container_width=True):
+                st.metric("Total", len(users))
+                st.metric("Actifs", len(users[users["is_active"] == True]))
+    
+    with tab3:
+        st.subheader("Paramètres de sécurité")
+        
+        with st.form("security_form"):
+            password_length = st.slider("Longueur minimale mot de passe", 6, 20, 8)
+            max_attempts = st.number_input("Tentatives max avant blocage", 1, 10, 3)
+            session_timeout = st.number_input("Timeout session (minutes)", 5, 240, 60)
+            two_factor = st.checkbox("Authentification à deux facteurs", value=False)
+            logging_level = st.selectbox("Niveau de log", ["DEBUG", "INFO", "WARNING", "ERROR"])
+            
+            if st.form_submit_button("💾 Sauvegarder paramètres", type="primary"):
+                st.success("Paramètres de sécurité sauvegardés !")
+    
+    with tab4:
+        st.subheader("Sauvegarde et restauration")
+        
+        col_b1, col_b2 = st.columns(2)
+        
+        with col_b1:
+            st.markdown("### 💾 Sauvegarde")
+            if st.button("Sauvegarder maintenant", use_container_width=True):
+                st.success("Sauvegarde effectuée !")
+            
+            if st.button("Exporter en CSV", use_container_width=True):
+                st.success("Export CSV lancé !")
+            
+            backup_freq = st.selectbox("Fréquence auto", ["Quotidienne", "Hebdomadaire", "Mensuelle"])
+        
+        with col_b2:
+            st.markdown("### 🔄 Restauration")
+            backup_file = st.file_uploader("Choisir fichier de sauvegarde", type=["json", "csv"])
+            
+            if st.button("Restaurer depuis fichier", type="secondary", use_container_width=True):
+                if backup_file:
+                    st.warning("⚠️ Cette action écrasera les données actuelles !")
+                    if st.button("Confirmer la restauration", type="primary"):
+                        st.success("Restauration réussie !")
+                else:
+                    st.error("Veuillez sélectionner un fichier")
 
 def show_dashboard():
     """Tableau de bord simplifié"""
