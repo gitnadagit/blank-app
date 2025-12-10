@@ -8,8 +8,8 @@ from pathlib import Path
 
 # ========== CONFIGURATION ==========
 st.set_page_config(
-    page_title="GMAO Pro + Tiers",
-    page_icon="🏭",
+    page_title="GMAO Pro + Outillages",
+    page_icon="🛠️",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -117,6 +117,7 @@ class DataManager:
         
         self.users_file = self.data_dir / "users.json"
         self.tiers_file = self.data_dir / "tiers.json"
+        self.outillages_file = self.data_dir / "outillages.json"
         
         self.load_all_data()
     
@@ -130,13 +131,21 @@ class DataManager:
             self.users = self.create_default_users()
             self.save_users()
         
-        # Tiers (fournisseurs & sous-traitants)
+        # Tiers
         if self.tiers_file.exists():
             with open(self.tiers_file, 'r', encoding='utf-8') as f:
                 self.tiers = json.load(f)
         else:
             self.tiers = self.create_default_tiers()
             self.save_tiers()
+
+    # Outillages
+        if self.outillages_file.exists():
+            with open(self.outillages_file, 'r', encoding='utf-8') as f:
+                self.outillages = json.load(f)
+        else:
+            self.outillages = self.create_default_outillages()
+            self.save_outillages()
     
     def create_default_users(self):
         """Crée les utilisateurs par défaut"""
@@ -301,6 +310,164 @@ class DataManager:
                 }
             ]
         }
+
+     def create_default_outillages(self):
+        """Crée les outillages par défaut"""
+        return {
+            "outillages": [
+                {
+                    "id": 1,
+                    "reference": "OUT-001",
+                    "nom": "Clé à choc 1/2\"",
+                    "type": "Électroportatif",
+                    "marque": "Makita",
+                    "modele": "TW0350",
+                    "numero_serie": "SN-MKT-2023-001",
+                    "etat": "✅ Excellent",
+                    "etat_detail": "Neuf, très peu utilisé",
+                    "localisation": "Atelier A - Rack O1",
+                    "date_acquisition": "2023-03-15",
+                    "date_derniere_verification": "2024-10-15",
+                    "date_prochaine_verification": "2025-04-15",
+                    "prix_acquisition": 450.00,
+                    "valeur_actuelle": 380.00,
+                    "disponibilite": "🟢 Disponible",
+                    "dernier_utilisateur": "Jean Dupont",
+                    "date_dernier_emprunt": "2024-11-20",
+                    "utilisation": "Montage/Démontage boulons lourds",
+                    "consommables_associes": "Douilles 1/2\", Cliquet",
+                    "fiche_technique": "Puissance: 650W, Couple: 700 Nm",
+                    "notes": "À utiliser avec gants de protection"
+                },
+                {
+                    "id": 2,
+                    "reference": "OUT-002",
+                    "nom": "Multimètre numérique",
+                    "type": "Mesure électrique",
+                    "marque": "Fluke",
+                    "modele": "87V",
+                    "numero_serie": "SN-FLK-2022-045",
+                    "etat": "✅ Bon",
+                    "etat_detail": "Fonctionne parfaitement, écran légèrement rayé",
+                    "localisation": "Atelier B - Armoire mesure",
+                    "date_acquisition": "2022-07-10",
+                    "date_derniere_verification": "2024-09-20",
+                    "date_prochaine_verification": "2025-03-20",
+                    "prix_acquisition": 320.00,
+                    "valeur_actuelle": 250.00,
+                    "disponibilite": "🟢 Disponible",
+                    "dernier_utilisateur": "Marie Martin",
+                    "date_dernier_emprunt": "2024-11-22",
+                    "utilisation": "Mesures tension/courant/résistance",
+                    "consommables_associes": "Piles 9V, Pointes de test",
+                    "fiche_technique": "Catégorie: CAT III 1000V, Précision: 0.1%",
+                    "notes": "Étalonné tous les 6 mois"
+                },
+                {
+                    "id": 3,
+                    "nom": "Scie sauteuse",
+                    "reference": "OUT-003",
+                    "type": "Électroportatif",
+                    "marque": "Bosch",
+                    "modele": "GST 150 BCE",
+                    "numero_serie": "SN-BSH-2021-123",
+                    "etat": "🟡 Correct",
+                    "etat_detail": "Lame usée à changer, moteur bruyant",
+                    "localisation": "Atelier A - Rack O2",
+                    "date_acquisition": "2021-11-05",
+                    "date_derniere_verification": "2024-08-10",
+                    "date_prochaine_verification": "2025-02-10",
+                    "prix_acquisition": 180.00,
+                    "valeur_actuelle": 90.00,
+                    "disponibilite": "🔴 En réparation",
+                    "dernier_utilisateur": "Paul Bernard",
+                    "date_dernier_emprunt": "2024-11-15",
+                    "utilisation": "Découpe métal/bois",
+                    "consommables_associes": "Lames T118A, Lubes",
+                    "fiche_technique": "Puissance: 720W, Course: 28mm",
+                    "notes": "À réviser avant prochaine utilisation"
+                },
+                {
+                    "id": 4,
+                    "reference": "OUT-004",
+                    "nom": "Trousse à outils complète",
+                    "type": "Manuel",
+                    "marque": "Facom",
+                    "modele": "UTA.160",
+                    "numero_serie": "SN-FCM-2023-078",
+                    "etat": "✅ Excellent",
+                    "etat_detail": "Complet, outils neufs",
+                    "localisation": "Camion service 1",
+                    "date_acquisition": "2023-09-20",
+                    "date_derniere_verification": "2024-11-01",
+                    "date_prochaine_verification": "2025-05-01",
+                    "prix_acquisition": 850.00,
+                    "valeur_actuelle": 750.00,
+                    "disponibilite": "🟡 Emprunté",
+                    "dernier_utilisateur": "Technicien mobile",
+                    "date_dernier_emprunt": "2024-11-25",
+                    "date_retour_prevue": "2024-11-29",
+                    "utilisation": "Interventions mobiles",
+                    "consommables_associes": "Clés diverses, tournevis, pinces",
+                    "fiche_technique": "160 pièces, Coffre métal",
+                    "notes": "Vérifier contenu après chaque retour"
+                },
+                {
+                    "id": 5,
+                    "reference": "OUT-005",
+                    "nom": "Thermomètre infrarouge",
+                    "type": "Mesure température",
+                    "marque": "Testo",
+                    "modele": "835-T1",
+                    "numero_serie": "SN-TST-2022-256",
+                    "etat": "✅ Bon",
+                    "etat_detail": "Précision vérifiée",
+                    "localisation": "Salle contrôle qualité",
+                    "date_acquisition": "2022-05-15",
+                    "date_derniere_verification": "2024-10-30",
+                    "date_prochaine_verification": "2025-04-30",
+                    "prix_acquisition": 280.00,
+                    "valeur_actuelle": 210.00,
+                    "disponibilite": "🟢 Disponible",
+                    "dernier_utilisateur": "Contrôle qualité",
+                    "date_dernier_emprunt": "2024-11-18",
+                    "utilisation": "Contrôle température machines",
+                    "consommables_associes": "Piles CR2032",
+                    "fiche_technique": "Plage: -30°C à +400°C, Précision: ±1.5°C",
+                    "notes": "Ne pas pointer vers les yeux"
+                }
+            ]
+        }
+
+  def save_outillages(self):
+        """Sauvegarde les outillages"""
+        with open(self.outillages_file, 'w', encoding='utf-8') as f:
+            json.dump(self.outillages, f, ensure_ascii=False, indent=2)
+    
+    def get_all_outillages(self):
+        """Retourne tous les outillages"""
+        return pd.DataFrame(self.outillages["outillages"])
+    
+    def add_outillage(self, outillage_data):
+        """Ajoute un nouvel outillage"""
+        max_id = max([o["id"] for o in self.outillages["outillages"]], default=0)
+        outillage_data["id"] = max_id + 1
+        self.outillages["outillages"].append(outillage_data)
+        self.save_outillages()
+        return outillage_data["id"]
+    
+    def update_outillage(self, outillage_id, outillage_data):
+        """Met à jour un outillage"""
+        for i, outillage in enumerate(self.outillages["outillages"]):
+            if outillage["id"] == outillage_id:
+                self.outillages["outillages"][i] = outillage_data
+                break
+        self.save_outillages()
+    
+    def delete_outillage(self, outillage_id):
+        """Supprime un outillage"""
+        self.outillages["outillages"] = [o for o in self.outillages["outillages"] if o["id"] != outillage_id]
+        self.save_outillages()
     
     def hash_password(self, password):
         """Hash un mot de passe"""
@@ -459,10 +626,17 @@ def show_main_app():
         
         st.markdown("---")
         
-        # Menu
+        # Menu MIS À JOUR avec Outillages
         st.markdown("### 📋 Navigation")
         
-        menu_options = ["🏠 Tableau de bord", "🔧 Interventions", "🏭 Équipements", "📦 Stocks", "🤝 Gestion des Tiers"]
+        menu_options = [
+            "🏠 Tableau de bord", 
+            "🔧 Interventions", 
+            "🏭 Équipements", 
+            "📦 Stocks",
+            "🛠️ Outillages",  # <-- NOUVEAU
+            "🤝 Gestion des Tiers"
+        ]
         
         if user["role"] == "admin":
             menu_options.append("⚙️ Administration")
@@ -478,7 +652,7 @@ def show_main_app():
                 del st.session_state[key]
             st.rerun()
     
-    # Contenu principal
+    # Contenu principal MIS À JOUR
     menu = st.session_state.selected_menu
     
     if menu == "🏠 Tableau de bord":
@@ -489,6 +663,8 @@ def show_main_app():
         show_equipements()
     elif menu == "📦 Stocks":
         show_stocks()
+    elif menu == "🛠️ Outillages":  # <-- NOUVEAU
+        show_outillages_management()
     elif menu == "🤝 Gestion des Tiers":
         show_tiers_management()
     elif menu == "⚙️ Administration" and user["role"] == "admin":
@@ -845,31 +1021,354 @@ def show_new_tier_form():
                 else:
                     st.error("Veuillez remplir tous les champs obligatoires (*)")
 
-# ========== AUTRES PAGES (simplifiées pour l'exemple) ==========
-def show_dashboard():
-    """Affiche le tableau de bord"""
-    st.title("🏠 Tableau de bord")
+# ========== PAGE DE GESTION DES OUTILLAGES ==========
+def show_outillages_management():
+    """Affiche la page de gestion des outillages"""
+    st.title("🛠️ Gestion des Outillages")
+    
+    # Onglets
+    tab1, tab2, tab3, tab4 = st.tabs(["📋 Inventaire", "📊 Vue d'ensemble", "➕ Nouvel outillage", "🔄 Gestion emprunts"])
+    
+    with tab1:
+        show_outillages_inventory()
+    
+    with tab2:
+        show_outillages_overview()
+    
+    with tab3:
+        show_new_outillage_form()
+    
+    with tab4:
+        show_emprunts_management()
+
+def show_outillages_inventory():
+    """Affiche l'inventaire des outillages"""
+    st.subheader("📋 Inventaire des Outillages")
+    
+    outillages = data_manager.get_all_outillages()
+    
+    if outillages.empty:
+        st.info("Aucun outillage enregistré")
+        return
+    
+    # Filtres
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        type_filter = st.multiselect("Type", outillages["type"].unique())
+    
+    with col2:
+        etat_filter = st.multiselect("État", outillages["etat"].unique(), default=["✅ Excellent", "✅ Bon"])
+    
+    with col3:
+        disponibilite_filter = st.multiselect("Disponibilité", outillages["disponibilite"].unique(), default=["🟢 Disponible"])
+    
+    # Application filtres
+    filtered = outillages.copy()
+    
+    if type_filter:
+        filtered = filtered[filtered["type"].isin(type_filter)]
+    
+    if etat_filter:
+        filtered = filtered[filtered["etat"].isin(etat_filter)]
+    
+    if disponibilite_filter:
+        filtered = filtered[filtered["disponibilite"].isin(disponibilite_filter)]
+    
+    # Affichage par cartes
+    if not filtered.empty:
+        for _, outillage in filtered.iterrows():
+            with st.container():
+                # En-tête de la carte
+                col_a1, col_a2 = st.columns([4, 1])
+                with col_a1:
+                    st.markdown(f"### {outillage['nom']}")
+                    st.markdown(f"**Référence:** {outillage['reference']} | **Type:** {outillage['type']}")
+                with col_a2:
+                    st.markdown(f"**{outillage['disponibilite']}**")
+                
+                # Informations principales
+                col_b1, col_b2, col_b3 = st.columns(3)
+                with col_b1:
+                    st.metric("État", outillage["etat"])
+                with col_b2:
+                    st.metric("Localisation", outillage["localisation"])
+                with col_b3:
+                    st.metric("Valeur", f"{outillage['valeur_actuelle']:.0f} €")
+                
+                # Détails supplémentaires
+                with st.expander("📝 Détails complets", expanded=False):
+                    col_c1, col_c2 = st.columns(2)
+                    with col_c1:
+                        st.write(f"**Marque/Modèle:** {outillage['marque']} {outillage['modele']}")
+                        st.write(f"**N° Série:** {outillage['numero_serie']}")
+                        st.write(f"**Date acquisition:** {outillage['date_acquisition']}")
+                        st.write(f"**Utilisation:** {outillage['utilisation']}")
+                    
+                    with col_c2:
+                        st.write(f"**Dernier utilisateur:** {outillage['dernier_utilisateur']}")
+                        st.write(f"**Date dernière vérif:** {outillage['date_derniere_verification']}")
+                        st.write(f"**Prochaine vérification:** {outillage['date_prochaine_verification']}")
+                        st.write(f"**Consommables:** {outillage['consommables_associes']}")
+                
+                # Boutons d'action
+                col_btn1, col_btn2, col_btn3, col_btn4 = st.columns(4)
+                with col_btn1:
+                    if st.button("📝 Emprunter", key=f"borrow_{outillage['id']}"):
+                        st.session_state.outillage_to_borrow = outillage['id']
+                        st.success(f"Formulaire d'emprunt pour {outillage['nom']}")
+                
+                with col_btn2:
+                    if st.button("🔧 Réparer", key=f"repair_{outillage['id']}"):
+                        st.info(f"Bon de réparation pour {outillage['nom']}")
+                
+                with col_btn3:
+                    if st.button("📋 Vérifier", key=f"check_{outillage['id']}"):
+                        st.info(f"Fiche de vérification pour {outillage['nom']}")
+                
+                with col_btn4:
+                    if st.button("🗑️ Supprimer", key=f"delete_{outillage['id']}"):
+                        if st.button(f"Confirmer suppression {outillage['nom']}", key=f"confirm_del_{outillage['id']}"):
+                            data_manager.delete_outillage(outillage['id'])
+                            st.success(f"Outillage {outillage['nom']} supprimé")
+                            st.rerun()
+                
+                st.markdown("---")
+    else:
+        st.warning("Aucun outillage ne correspond aux filtres")
+def show_outillages_overview():
+    """Affiche une vue d'ensemble des outillages"""
+    st.subheader("📊 Vue d'ensemble")
+    
+    outillages = data_manager.get_all_outillages()
+    
+    if outillages.empty:
+        st.info("Aucun outillage enregistré")
+        return
     
     # Métriques
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        total = len(outillages)
+        st.metric("Total outillages", total)
+    
+    with col2:
+        disponible = len(outillages[outillages["disponibilite"] == "🟢 Disponible"])
+        st.metric("Disponibles", disponible)
+    
+    with col3:
+        valeur_totale = outillages["valeur_actuelle"].sum()
+        st.metric("Valeur totale", f"{valeur_totale:,.0f} €".replace(",", " "))
+    
+    with col4:
+        en_reparation = len(outillages[outillages["disponibilite"] == "🔴 En réparation"])
+        st.metric("En réparation", en_reparation)
+    
+    # Graphiques
+    col_chart1, col_chart2 = st.columns(2)
+    
+    with col_chart1:
+        st.subheader("Répartition par type")
+        type_counts = outillages["type"].value_counts()
+        st.bar_chart(type_counts)
+    
+    with col_chart2:
+        st.subheader("Répartition par état")
+        etat_counts = outillages["etat"].value_counts()
+        st.bar_chart(etat_counts)
+    
+    # Tableau récapitulatif
+    st.subheader("📋 Récapitulatif")
+    summary_df = outillages[["reference", "nom", "type", "etat", "disponibilite", "localisation", "valeur_actuelle"]].copy()
+    summary_df.columns = ["Réf", "Nom", "Type", "État", "Dispo", "Localisation", "Valeur (€)"]
+    st.dataframe(summary_df, use_container_width=True, height=300)
+
+def show_new_outillage_form():
+    """Affiche le formulaire pour ajouter un nouvel outillage"""
+    st.subheader("➕ Ajouter un nouvel outillage")
+    
+    with st.form("new_outillage_form"):
+        st.markdown("### Informations générales")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            reference = st.text_input("Référence*", placeholder="EX: OUT-006")
+            nom = st.text_input("Nom de l'outillage*", placeholder="Ex: Perceuse à colonne")
+            type_outillage = st.selectbox("Type*", [
+                "Électroportatif", "Manuel", "Mesure", "Test", 
+                "Sécurité", "Transport", "Soudage", "Autre"
+            ])
+            marque = st.text_input("Marque")
+            modele = st.text_input("Modèle")
+        
+        with col2:
+            numero_serie = st.text_input("Numéro de série")
+            etat = st.selectbox("État général*", ["✅ Excellent", "✅ Bon", "🟡 Correct", "🔴 Mauvais"])
+            etat_detail = st.text_area("Détails état", placeholder="Décrivez l'état en détail...")
+            localisation = st.text_input("Localisation de stockage*", placeholder="Ex: Atelier A - Rack 3")
+        
+        st.markdown("### Acquisition et valeur")
+        col3, col4 = st.columns(2)
+        with col3:
+            date_acquisition = st.date_input("Date d'acquisition", datetime.date.today())
+            prix_acquisition = st.number_input("Prix d'acquisition (€)", min_value=0.0, value=0.0, step=10.0)
+        
+        with col4:
+            date_derniere_verification = st.date_input("Date dernière vérification", datetime.date.today())
+            date_prochaine_verification = st.date_input("Date prochaine vérification", datetime.date.today() + datetime.timedelta(days=180))
+            valeur_actuelle = st.number_input("Valeur actuelle estimée (€)", min_value=0.0, value=0.0, step=10.0)
+        
+        st.markdown("### Utilisation et spécifications")
+        utilisation = st.text_area("Utilisation prévue*", placeholder="Décrivez l'utilisation principale...")
+        consommables_associes = st.text_input("Consommables associés", placeholder="Ex: Lames, forets, piles...")
+        fiche_technique = st.text_area("Fiche technique", placeholder="Spécifications techniques...")
+        notes = st.text_area("Notes supplémentaires")
+        
+        disponibilite = st.selectbox("Disponibilité initiale", ["🟢 Disponible", "🟡 En maintenance", "🔴 Hors service"])
+        
+        submitted = st.form_submit_button("✅ Enregistrer l'outillage", type="primary")
+        
+        if submitted:
+            if not reference or not nom or not type_outillage or not localisation or not utilisation:
+                st.error("Veuillez remplir tous les champs obligatoires (*)")
+            else:
+                outillage_data = {
+                    "reference": reference,
+                    "nom": nom,
+                    "type": type_outillage,
+                    "marque": marque,
+                    "modele": modele,
+                    "numero_serie": numero_serie,
+                    "etat": etat,
+                    "etat_detail": etat_detail,
+                    "localisation": localisation,
+                    "date_acquisition": date_acquisition.isoformat(),
+                    "date_derniere_verification": date_derniere_verification.isoformat(),
+                    "date_prochaine_verification": date_prochaine_verification.isoformat(),
+                    "prix_acquisition": prix_acquisition,
+                    "valeur_actuelle": valeur_actuelle,
+                    "disponibilite": disponibilite,
+                    "dernier_utilisateur": "",
+                    "date_dernier_emprunt": "",
+                    "utilisation": utilisation,
+                    "consommables_associes": consommables_associes,
+                    "fiche_technique": fiche_technique,
+                    "notes": notes
+                }
+                
+                outillage_id = data_manager.add_outillage(outillage_data)
+                st.success(f"✅ Outillage {nom} ajouté avec succès ! Référence: {reference}")
+                st.balloons()
+
+def show_emprunts_management():
+    """Affiche la gestion des emprunts"""
+    st.subheader("🔄 Gestion des Emprunts")
+    
+    outillages = data_manager.get_all_outillages()
+    
+    # Formulaire d'emprunt
+    with st.form("emprunt_form"):
+        st.markdown("### Nouvel emprunt")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            # Filtrer les outillages disponibles
+            disponibles = outillages[outillages["disponibilite"] == "🟢 Disponible"]
+            if not disponibles.empty:
+                outillage_options = disponibles[["id", "nom", "reference"]].itertuples(index=False, name=None)
+                outillage_choice = st.selectbox(
+                    "Outillage*",
+                    options=outillage_options,
+                    format_func=lambda x: f"{x[2]} - {x[1]}"
+                )
+                outillage_id = outillage_choice[0] if outillage_choice else None
+            else:
+                st.warning("Aucun outillage disponible")
+                outillage_id = None
+        
+        with col2:
+            utilisateur = st.selectbox("Utilisateur*", ["Jean Dupont", "Marie Martin", "Paul Bernard", "Sophie Laurent", "Autre"])
+            if utilisateur == "Autre":
+                utilisateur = st.text_input("Nom utilisateur")
+        
+        date_emprunt = st.date_input("Date emprunt*", datetime.date.today())
+        date_retour_prevue = st.date_input("Date retour prévue*", datetime.date.today() + datetime.timedelta(days=7))
+        motif = st.text_area("Motif de l'emprunt*", placeholder="Décrivez l'utilisation prévue...")
+        
+        if st.form_submit_button("📝 Enregistrer l'emprunt", type="primary"):
+            if outillage_id and utilisateur and motif:
+                # Mettre à jour l'outillage
+                outillage = outillages[outillages["id"] == outillage_id].iloc[0].to_dict()
+                outillage["disponibilite"] = "🟡 Emprunté"
+                outillage["dernier_utilisateur"] = utilisateur
+                outillage["date_dernier_emprunt"] = date_emprunt.isoformat()
+                outillage["date_retour_prevue"] = date_retour_prevue.isoformat()
+                
+                data_manager.update_outillage(outillage_id, outillage)
+                
+                st.success(f"✅ Emprunt enregistré ! {outillage['nom']} emprunté par {utilisateur}")
+                st.balloons()
+            else:
+                st.error("Veuillez remplir tous les champs")
+    
+    # Liste des emprunts en cours
+    st.markdown("### 📋 Emprunts en cours")
+    emprunts_en_cours = outillages[outillages["disponibilite"] == "🟡 Emprunté"]
+    
+    if not emprunts_en_cours.empty:
+        for _, emprunt in emprunts_en_cours.iterrows():
+            with st.container():
+                col_e1, col_e2, col_e3 = st.columns([3, 2, 1])
+                with col_e1:
+                    st.write(f"**{emprunt['nom']}** ({emprunt['reference']})")
+                    st.write(f"Emprunté par: {emprunt['dernier_utilisateur']}")
+                
+                with col_e2:
+                    st.write(f"Depuis: {emprunt['date_dernier_emprunt']}")
+                    if "date_retour_prevue" in emprunt and emprunt["date_retour_prevue"]:
+                        retour_date = datetime.datetime.fromisoformat(emprunt["date_retour_prevue"]).date()
+                        if retour_date < datetime.date.today():
+                            st.error(f"⚠️ Retard depuis {retour_date}")
+                        else:
+                            st.write(f"Retour prévu: {retour_date}")
+                
+                with col_e3:
+                    if st.button("✅ Retourner", key=f"return_{emprunt['id']}"):
+                        emprunt_copy = emprunt.copy()
+                        emprunt_copy["disponibilite"] = "🟢 Disponible"
+                        data_manager.update_outillage(emprunt["id"], emprunt_copy)
+                        st.success(f"{emprunt['nom']} retourné avec succès")
+                        st.rerun()
+                
+                st.markdown("---")
+    else:
+        st.info("Aucun emprunt en cours")
+
+
+# ========== AUTRES PAGES (simplifiées pour l'exemple) ==========
+def show_dashboard():
+    """Affiche le tableau de bord MIS À JOUR"""
+    st.title("🏠 Tableau de bord")
+    
+    # Métriques MISES À JOUR
     col1, col2, col3, col4 = st.columns(4)
     with col1:
         st.metric("Interventions", "156", "+12%")
     with col2:
         st.metric("Équipements", "48", "+3")
     with col3:
-        st.metric("Tiers", f"{len(data_manager.get_all_tiers())}", "+2")
+        outillages = data_manager.get_all_outillages()
+        total_outillages = len(outillages) if not outillages.empty else 0
+        st.metric("Outillages", total_outillages, "+2")  # <-- NOUVEAU
     with col4:
-        st.metric("Stock critique", "3", "-1")
+        st.metric("Fournisseurs", "8", "+1")
     
-    # Derniers tiers ajoutés
-    st.subheader("🤝 Derniers tiers ajoutés")
-    all_tiers = data_manager.get_all_tiers()
-    if not all_tiers.empty:
-        recent_tiers = all_tiers.head(3)
-        for _, tier in recent_tiers.iterrows():
-            type_badge = "type-fournisseur" if tier["type"] == "fournisseur" else "type-soustraitant"
-            type_text = "Fournisseur" if tier["type"] == "fournisseur" else "Sous-traitant"
-            st.info(f"**{tier['nom']}** - {type_text} - {tier['specialite']}")
+    # Derniers outillages ajoutés
+    st.subheader("🛠️ Derniers outillages ajoutés")
+    if not outillages.empty:
+        recent_outillages = outillages.sort_values("date_acquisition", ascending=False).head(3)
+        for _, outillage in recent_outillages.iterrows():
+            disponibilite_color = "🟢" if outillage["disponibilite"] == "🟢 Disponible" else "🟡" if outillage["disponibilite"] == "🟡 Emprunté" else "🔴"
+            st.info(f"**{outillage['nom']}** ({outillage['reference']}) - {outillage['type']} - {disponibilite_color} {outillage['localisation']}")
 
 def show_interventions():
     """Affiche la page interventions"""
