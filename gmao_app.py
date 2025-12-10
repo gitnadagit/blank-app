@@ -536,8 +536,17 @@ def show_emprunts_management():
         with col1:
             disponibles = outillages[outillages["disponibilite"] == "🟢 Disponible"]
             if not disponibles.empty:
-                outillage_options = disponibles[["id", "nom", "reference"]].itertuples(index=False, name=None)
-                outillage_choice = st.selectbox("Outillage*", options=outillage_options, format_func=lambda x: f"{x[2]} - {x[1]}")
+                # CORRECTION : Utiliser to_numpy().tolist() pour obtenir une liste de listes
+                outillage_options = disponibles[["id", "nom", "reference"]].to_numpy().tolist()
+                
+                # Debug optionnel
+                # st.write("Debug options:", outillage_options[:3])  # Affiche les 3 premières options
+                
+                outillage_choice = st.selectbox(
+                    "Outillage*", 
+                    options=outillage_options, 
+                    format_func=lambda x: f"{x[2]} - {x[1]}"  # x[2] = reference, x[1] = nom
+                )
                 outillage_id = outillage_choice[0] if outillage_choice else None
             else:
                 st.warning("Aucun outillage disponible")
@@ -554,16 +563,26 @@ def show_emprunts_management():
         
         if st.form_submit_button("📝 Enregistrer l'emprunt", type="primary"):
             if outillage_id and utilisateur and motif:
-                outillage = outillages[outillages["id"] == outillage_id].iloc[0].to_dict()
-                outillage["disponibilite"] = "🟡 Emprunté"
-                outillage["dernier_utilisateur"] = utilisateur
-                outillage["date_dernier_emprunt"] = date_emprunt.isoformat()
-                outillage["date_retour_prevue"] = date_retour_prevue.isoformat()
+                # Chercher l'outillage par ID
+                outillage = None
+                for o in data_manager.outillages["outillages"]:
+                    if o["id"] == outillage_id:
+                        outillage = o.copy()
+                        break
                 
-                data_manager.update_outillage(outillage_id, outillage)
-                
-                st.success(f"✅ Emprunt enregistré ! {outillage['nom']} emprunté par {utilisateur}")
-                st.balloons()
+                if outillage:
+                    outillage["disponibilite"] = "🟡 Emprunté"
+                    outillage["dernier_utilisateur"] = utilisateur
+                    outillage["date_dernier_emprunt"] = date_emprunt.isoformat()
+                    outillage["date_retour_prevue"] = date_retour_prevue.isoformat()
+                    
+                    data_manager.update_outillage(outillage_id, outillage)
+                    
+                    st.success(f"✅ Emprunt enregistré ! {outillage['nom']} emprunté par {utilisateur}")
+                    st.balloons()
+                    st.rerun()
+                else:
+                    st.error("Erreur : outillage non trouvé")
             else:
                 st.error("Veuillez remplir tous les champs")
     
@@ -582,17 +601,30 @@ def show_emprunts_management():
                 with col_e2:
                     st.write(f"Depuis: {emprunt['date_dernier_emprunt']}")
                     if "date_retour_prevue" in emprunt and emprunt["date_retour_prevue"]:
-                        retour_date = datetime.datetime.fromisoformat(emprunt["date_retour_prevue"]).date()
-                        if retour_date < datetime.date.today():
-                            st.error(f"⚠️ Retard depuis {retour_date}")
-                        else:
-                            st.write(f"Retour prévu: {retour_date}")
+                        try:
+                            if isinstance(emprunt["date_retour_prevue"], str):
+                                retour_date = datetime.datetime.fromisoformat(emprunt["date_retour_prevue"]).date()
+                            else:
+                                retour_date = emprunt["date_retour_prevue"]
+                                
+                            if retour_date < datetime.date.today():
+                                st.error(f"⚠️ Retard depuis {retour_date}")
+                            else:
+                                st.write(f"Retour prévu: {retour_date}")
+                        except:
+                            st.write("Date retour: Non spécifiée")
                 
                 with col_e3:
                     if st.button("✅ Retourner", key=f"return_{emprunt['id']}"):
-                        emprunt_copy = emprunt.copy()
-                        emprunt_copy["disponibilite"] = "🟢 Disponible"
-                        data_manager.update_outillage(emprunt["id"], emprunt_copy)
+                        # Récupérer l'outillage depuis les données
+                        for o in data_manager.outillages["outillages"]:
+                            if o["id"] == emprunt["id"]:
+                                o["disponibilite"] = "🟢 Disponible"
+                                o["date_dernier_emprunt"] = ""
+                                o["date_retour_prevue"] = ""
+                                break
+                        
+                        data_manager.save_outillages()
                         st.success(f"{emprunt['nom']} retourné avec succès")
                         st.rerun()
                 
