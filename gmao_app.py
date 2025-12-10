@@ -615,52 +615,54 @@ def show_fournisseurs():
     
     # Affichage par cartes
     for _, fournisseur in fournisseurs.iterrows():
-        with st.container():
-            st.markdown(f'''
-            <div class="supplier-card">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h4 style="margin: 0;">{fournisseur["nom"]}</h4>
-                    <span class="type-fournisseur">Fournisseur</span>
+        # Construire le HTML de la carte
+        html_card = f'''
+        <div class="supplier-card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h4 style="margin: 0;">{fournisseur["nom"]}</h4>
+                <span class="type-fournisseur">Fournisseur</span>
+            </div>
+            
+            <p style="color: #4B5563; margin: 10px 0;"><strong>Spécialité:</strong> {fournisseur["specialite"]}</p>
+            
+            <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+                <div>
+                    <small style="color: #6B7280;">Délai livraison</small><br>
+                    <span class="delivery-badge {'delivery-fast' if fournisseur['delai_livraison_moyen'] <= 3 else 'delivery-medium' if fournisseur['delai_livraison_moyen'] <= 7 else 'delivery-slow'}">
+                        {fournisseur['delai_livraison_moyen']} jours
+                    </span>
                 </div>
-                
-                <p style="color: #4B5563; margin: 10px 0;"><strong>Spécialité:</strong> {fournisseur["specialite"]}</p>
-                
-                <div style="display: flex; gap: 15px; margin-bottom: 10px;">
-                    <div>
-                        <small style="color: #6B7280;">Délai livraison</small><br>
-                        <span class="delivery-badge {'delivery-fast' if fournisseur['delai_livraison_moyen'] <= 3 else 'delivery-medium' if fournisseur['delai_livraison_moyen'] <= 7 else 'delivery-slow'}">
-                            {fournisseur['delai_livraison_moyen']} jours
-                        </span>
-                    </div>
-                    <div>
-                        <small style="color: #6B7280;">Fiabilité</small><br>
-                        <strong>{fournisseur["note_fiabilite"]}/5</strong>
-                    </div>
-                    <div>
-                        <small style="color: #6B7280;">Contrat</small><br>
-                        <span class="{'contract-active' if fournisseur['contrat_actif'] else 'contract-expired'}">
-                            {'Actif' if fournisseur['contrat_actif'] else 'Inactif'}
-                        </span>
-                    </div>
+                <div>
+                    <small style="color: #6B7280;">Fiabilité</small><br>
+                    <strong>{fournisseur["note_fiabilite"]}/5</strong>
                 </div>
-                
-                <div class="contact-info">
-                    <strong>📞 Contact:</strong> {fournisseur["contact_nom"]}<br>
-                    <strong>✉️ Email:</strong> {fournisseur["contact_email"]}<br>
-                    <strong>📍 Adresse:</strong> {fournisseur["adresse"][:50]}...
-                </div>
-                
-                <div style="margin-top: 15px; display: flex; gap: 10px;">
-                    <button style="background: #3B82F6; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">
-                        Commander
-                    </button>
-                    <button style="background: #F3F4F6; color: #374151; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">
-                        Voir détails
-                    </button>
+                <div>
+                    <small style="color: #6B7280;">Contrat</small><br>
+                    <span class="{'contract-active' if fournisseur['contrat_actif'] else 'contract-expired'}">
+                        {'Actif' if fournisseur['contrat_actif'] else 'Inactif'}
+                    </span>
                 </div>
             </div>
-            ''', unsafe_allow_html=True)
-
+            
+            <div class="contact-info">
+                <strong>📞 Contact:</strong> {fournisseur["contact_nom"]}<br>
+                <strong>✉️ Email:</strong> {fournisseur["contact_email"]}<br>
+                <strong>📍 Adresse:</strong> {fournisseur["adresse"][:50]}...
+            </div>
+            
+            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <button style="background: #3B82F6; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">
+                    Commander
+                </button>
+                <button style="background: #F3F4F6; color: #374151; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">
+                    Voir détails
+                </button>
+            </div>
+        </div>
+        '''
+        
+        # Afficher avec st.markdown pour interpréter le HTML
+        st.markdown(html_card, unsafe_allow_html=True)
 def show_soustraitants():
     """Affiche la liste des sous-traitants"""
     st.subheader("👷 Sous-traitants de maintenance")
@@ -673,53 +675,55 @@ def show_soustraitants():
     
     # Affichage par cartes
     for _, soustraitant in soustraitants.iterrows():
-        with st.container():
-            st.markdown(f'''
-            <div class="supplier-card">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h4 style="margin: 0;">{soustraitant["nom"]}</h4>
-                    <span class="type-soustraitant">Sous-traitant</span>
+        # Construire le HTML de la carte
+        html_card = f'''
+        <div class="supplier-card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h4 style="margin: 0;">{soustraitant["nom"]}</h4>
+                <span class="type-soustraitant">Sous-traitant</span>
+            </div>
+            
+            <p style="color: #4B5563; margin: 10px 0;">
+                <strong>Spécialité:</strong> {soustraitant["specialite"]}<br>
+                <strong>Type intervention:</strong> {soustraitant["intervention_type"]}
+            </p>
+            
+            <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+                <div>
+                    <small style="color: #6B7280;">Taux horaire</small><br>
+                    <strong>{soustraitant["taux_horaire"]} €/h</strong>
                 </div>
-                
-                <p style="color: #4B5563; margin: 10px 0;">
-                    <strong>Spécialité:</strong> {soustraitant["specialite"]}<br>
-                    <strong>Type intervention:</strong> {soustraitant["intervention_type"]}
-                </p>
-                
-                <div style="display: flex; gap: 15px; margin-bottom: 10px;">
-                    <div>
-                        <small style="color: #6B7280;">Taux horaire</small><br>
-                        <strong>{soustraitant["taux_horaire"]} €/h</strong>
-                    </div>
-                    <div>
-                        <small style="color: #6B7280;">Zone</small><br>
-                        <strong>{soustraitant["zone_intervention"]}</strong>
-                    </div>
-                    <div>
-                        <small style="color: #6B7280;">Assurance RC Pro</small><br>
-                        <span class="{'contract-active' if soustraitant['assurance_rc_pro'] else 'contract-expired'}">
-                            {'Oui' if soustraitant['assurance_rc_pro'] else 'Non'}
-                        </span>
-                    </div>
+                <div>
+                    <small style="color: #6B7280;">Zone</small><br>
+                    <strong>{soustraitant["zone_intervention"]}</strong>
                 </div>
-                
-                <div class="contact-info">
-                    <strong>📞 Contact:</strong> {soustraitant["contact_nom"]}<br>
-                    <strong>✉️ Email:</strong> {soustraitant["contact_email"]}<br>
-                    <strong>📍 Adresse:</strong> {soustraitant["adresse"][:50]}...
-                </div>
-                
-                <div style="margin-top: 15px; display: flex; gap: 10px;">
-                    <button style="background: #10B981; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">
-                        Demander intervention
-                    </button>
-                    <button style="background: #F3F4F6; color: #374151; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">
-                        Voir détails
-                    </button>
+                <div>
+                    <small style="color: #6B7280;">Assurance RC Pro</small><br>
+                    <span class="{'contract-active' if soustraitant['assurance_rc_pro'] else 'contract-expired'}">
+                        {'Oui' if soustraitant['assurance_rc_pro'] else 'Non'}
+                    </span>
                 </div>
             </div>
-            ''', unsafe_allow_html=True)
-
+            
+            <div class="contact-info">
+                <strong>📞 Contact:</strong> {soustraitant["contact_nom"]}<br>
+                <strong>✉️ Email:</strong> {soustraitant["contact_email"]}<br>
+                <strong>📍 Adresse:</strong> {soustraitant["adresse"][:50]}...
+            </div>
+            
+            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <button style="background: #10B981; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">
+                    Demander intervention
+                </button>
+                <button style="background: #F3F4F6; color: #374151; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">
+                    Voir détails
+                </button>
+            </div>
+        </div>
+        '''
+        
+        # Afficher avec st.markdown pour interpréter le HTML
+        st.markdown(html_card, unsafe_allow_html=True)
 def show_new_tier_form():
     """Affiche le formulaire pour ajouter un nouveau tier"""
     st.subheader("➕ Ajouter un nouveau tier")
