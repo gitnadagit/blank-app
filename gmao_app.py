@@ -565,35 +565,40 @@ def show_all_tiers():
     
     # Affichage
     if not filtered.empty:
-        # Préparer l'affichage
+        # Préparer l'affichage - VERSION CORRIGÉE
+        display_df = filtered.copy()
+        
+        # Créer les colonnes d'affichage
         display_cols = ["nom", "type", "specialite", "contact_nom", "contact_telephone", "contrat_actif"]
         
-        if "delai_livraison_moyen" in filtered.columns:
-            display_cols.insert(3, "delai_livraison_moyen")
-        elif "taux_horaire" in filtered.columns:
-            display_cols.insert(3, "taux_horaire")
+        # Ajouter les colonnes conditionnelles
+        if "delai_livraison_moyen" in display_df.columns:
+            display_cols.append("delai_livraison_moyen")
         
-        display_df = filtered[display_cols].copy()
-        display_df.columns = ["Nom", "Type", "Spécialité", "Contact", "Téléphone", "Contrat Actif"]
+        if "taux_horaire" in display_df.columns:
+            display_cols.append("taux_horaire")
         
-        if "delai_livraison_moyen" in filtered.columns:
-            display_df.insert(3, "Délai livraison", filtered["delai_livraison_moyen"])
-        elif "taux_horaire" in filtered.columns:
-            display_df.insert(3, "Taux horaire", filtered["taux_horaire"])
+        # Sélectionner uniquement les colonnes qui existent
+        existing_cols = [col for col in display_cols if col in display_df.columns]
+        display_df = display_df[existing_cols]
         
-        # Ajouter badges
-        def format_type(val):
-            if val == "fournisseur":
-                return '<span class="type-fournisseur">Fournisseur</span>'
-            else:
-                return '<span class="type-soustraitant">Sous-traitant</span>'
+        # Renommer les colonnes
+        rename_dict = {
+            "nom": "Nom",
+            "type": "Type",
+            "specialite": "Spécialité",
+            "contact_nom": "Contact",
+            "contact_telephone": "Téléphone",
+            "contrat_actif": "Contrat Actif",
+            "delai_livraison_moyen": "Délai livraison",
+            "taux_horaire": "Taux horaire"
+        }
         
-        def format_contrat(val):
-            if val:
-                return '<span class="contract-active">Actif</span>'
-            else:
-                return '<span class="contract-expired">Inactif</span>'
+        # Appliquer le renommage uniquement aux colonnes présentes
+        rename_mapping = {col: rename_dict[col] for col in existing_cols if col in rename_dict}
+        display_df = display_df.rename(columns=rename_mapping)
         
+        # Afficher le dataframe
         st.dataframe(display_df, use_container_width=True, height=400)
     else:
         st.warning("Aucun résultat avec ces filtres")
