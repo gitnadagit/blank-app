@@ -1328,6 +1328,102 @@ def show_details_bt_preventif(bt_data):
     })
     st.dataframe(historique, use_container_width=True)
 
+def show_historique_preventif(plan_data):
+    """Affiche l'historique des interventions préventives pour un équipement"""
+    st.markdown(f"### 📊 Historique des interventions - {plan_data['equipement']}")
+    
+    # Données d'historique simulées
+    historique_data = [
+        {
+            "date": "2024-11-02",
+            "technicien": "Jean Dupont",
+            "type": plan_data["type"],
+            "statut": "✅ Réalisé",
+            "duree": "2h",
+            "observations": "Tout est normal, graissage effectué"
+        },
+        {
+            "date": "2024-10-02",
+            "technicien": "Jean Dupont",
+            "type": plan_data["type"],
+            "statut": "✅ Réalisé",
+            "duree": "1h45",
+            "observations": "Vérification OK, pas d'anomalie"
+        },
+        {
+            "date": "2024-09-02",
+            "technicien": "Paul Bernard",
+            "type": plan_data["type"],
+            "statut": "✅ Réalisé",
+            "duree": "2h15",
+            "observations": "Roulements à surveiller lors de la prochaine intervention"
+        },
+        {
+            "date": "2024-08-02",
+            "technicien": "Marie Martin",
+            "type": plan_data["type"],
+            "statut": "✅ Réalisé",
+            "duree": "2h",
+            "observations": "Intervention standard, tout fonctionne correctement"
+        }
+    ]
+    
+    # Affichage de l'historique
+    for hist in historique_data:
+        with st.container():
+            col1, col2, col3 = st.columns([2, 2, 2])
+            with col1:
+                st.write(f"**Date:** {hist['date']}")
+                st.write(f"**Technicien:** {hist['technicien']}")
+            with col2:
+                st.write(f"**Type:** {hist['type']}")
+                st.write(f"**Statut:** {hist['statut']}")
+            with col3:
+                st.write(f"**Durée:** {hist['duree']}")
+            
+            with st.expander("📝 Observations"):
+                st.write(hist['observations'])
+            
+            st.markdown("---")
+    
+    # Statistiques de l'historique
+    st.markdown("#### 📈 Statistiques de l'équipement")
+    
+    col_a, col_b, col_c = st.columns(3)
+    with col_a:
+        st.metric("Interventions totales", len(historique_data))
+    with col_b:
+        # Calcul du taux de réalisation
+        taux = (len([h for h in historique_data if h["statut"] == "✅ Réalisé"]) / len(historique_data)) * 100
+        st.metric("Taux de réalisation", f"{taux:.0f}%")
+    with col_c:
+        # Calcul de la durée moyenne
+        durees = []
+        for h in historique_data:
+            if "h" in h["duree"]:
+                try:
+                    heures = float(h["duree"].replace("h", "").strip())
+                    durees.append(heures)
+                except:
+                    continue
+        duree_moy = sum(durees) / len(durees) if durees else 0
+        st.metric("Durée moyenne", f"{duree_moy:.1f}h")
+    
+    # Graphique de fréquence
+    st.markdown("#### 📅 Fréquence des interventions")
+    dates = [h["date"] for h in historique_data]
+    frequence_df = pd.DataFrame({
+        'Mois': pd.to_datetime(dates).strftime('%Y-%m'),
+        'Nombre': [1] * len(dates)
+    })
+    frequence_agg = frequence_df.groupby('Mois').count().reset_index()
+    st.bar_chart(frequence_agg.set_index('Mois'))
+    
+    # Bouton pour exporter l'historique
+    if st.button("📄 Exporter l'historique en PDF"):
+        st.info("Export PDF en cours de développement...")
+        st.success(f"Historique de {plan_data['equipement']} prêt pour l'export")
+
 def show_planifier_intervention():
     """Formulaire pour planifier une nouvelle intervention préventive"""
     st.markdown("### ➕ Planifier une nouvelle intervention préventive")
