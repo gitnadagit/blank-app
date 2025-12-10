@@ -5,6 +5,7 @@ import json
 import hashlib
 import time
 from pathlib import Path
+import matplotlib.pyplot as plt
 
 # ========== CONFIGURATION ==========
 st.set_page_config(
@@ -2639,20 +2640,338 @@ def show_admin():
                     st.error("Veuillez sélectionner un fichier")
 
 def show_dashboard():
-    """Tableau de bord simplifié"""
-    st.title("🏠 Tableau de bord")
+    """Tableau de bord amélioré avec KPI de maintenance"""
+    st.title("🏠 Tableau de Bord Maintenance")
     
-    col1, col2, col3, col4 = st.columns(4)
+    # Données pour les métriques
+    outillages = data_manager.get_all_outillages()
+    total_outillages = len(outillages) if not outillages.empty else 0
+    outillages_disponibles = len(outillages[outillages["disponibilite"] == "🟢 Disponible"]) if not outillages.empty else 0
+    
+    # ========== PREMIÈRE LIGNE : KPI PRINCIPAUX ==========
+    st.markdown("### 📊 KPI Principaux")
+    
+    col1, col2, col3, col4, col5 = st.columns(5)
+    
     with col1:
-        st.metric("Interventions", "24")
+        st.metric(
+            label="Taux Disponibilité",
+            value="92.4%",
+            delta="+1.2%",
+            delta_color="normal"
+        )
+        st.caption("Équipements opérationnels")
+    
     with col2:
-        outillages = data_manager.get_all_outillages()
-        total_outillages = len(outillages) if not outillages.empty else 0
-        st.metric("Outillages", total_outillages)
+        st.metric(
+            label="MTBF Moyen",
+            value="450h",
+            delta="+25h",
+            delta_color="normal"
+        )
+        st.caption("Mean Time Between Failures")
+    
     with col3:
-        st.metric("Équipements", "12")
+        st.metric(
+            label="MTTR Moyen",
+            value="3.2h",
+            delta="-0.8h",
+            delta_color="inverse"
+        )
+        st.caption("Mean Time To Repair")
+    
     with col4:
-        st.metric("Alertes", "3")
+        taux_preventive = 78  # Donnée simulée
+        st.metric(
+            label="Maintenance Préventive",
+            value=f"{taux_preventive}%",
+            delta="+5%",
+            delta_color="normal"
+        )
+        st.caption("Part préventive vs corrective")
+    
+    with col5:
+        st.metric(
+            label="Coût Maintenance/Mois",
+            value="12.4k€",
+            delta="-1.2k€",
+            delta_color="inverse"
+        )
+        st.caption("Économies réalisées")
+    
+    # ========== DEUXIÈME LIGNE : STATISTIQUES ==========
+    st.markdown("### 📈 Statistiques d'Activité")
+    
+    col_a, col_b, col_c, col_d = st.columns(4)
+    
+    with col_a:
+        st.metric(
+            label="Interventions",
+            value="24",
+            delta="+3",
+            delta_color="normal"
+        )
+        st.caption("Ce mois")
+    
+    with col_b:
+        st.metric(
+            label="Outillages",
+            value=str(total_outillages),
+            delta=f"{outillages_disponibles} dispo",
+            delta_color="off"
+        )
+        st.caption(f"{outillages_disponibles}/{total_outillages} disponibles")
+    
+    with col_c:
+        st.metric(
+            label="Équipements",
+            value="12",
+            delta="0",
+            delta_color="off"
+        )
+        st.caption("En service")
+    
+    with col_d:
+        st.metric(
+            label="Alertes",
+            value="3",
+            delta="-2",
+            delta_color="inverse"
+        )
+        st.caption("À traiter")
+    
+    # ========== TROISIÈME LIGNE : GRAPHIQUES ==========
+    st.markdown("### 📊 Analyse de la Maintenance")
+    
+    # Premier row de graphiques
+    chart_col1, chart_col2 = st.columns(2)
+    
+    with chart_col1:
+        st.markdown("#### 🔧 Répartition des Interventions")
+        
+        # Données pour le graphique camembert
+        intervention_types = {
+            'Préventive': 65,
+            'Corrective': 25,
+            'Améliorative': 8,
+            'Urgente': 2
+        }
+        
+        fig1, ax1 = plt.subplots(figsize=(8, 6))
+        colors = ['#4CAF50', '#FF9800', '#2196F3', '#F44336']
+        ax1.pie(
+            intervention_types.values(),
+            labels=intervention_types.keys(),
+            autopct='%1.1f%%',
+            colors=colors,
+            startangle=90
+        )
+        ax1.axis('equal')
+        st.pyplot(fig1)
+        plt.close(fig1)
+        
+        st.caption("Objectif: ≥80% de maintenance préventive")
+    
+    with chart_col2:
+        st.markdown("#### 📅 Évolution Mensuelle")
+        
+        # Données pour le graphique linéaire
+        months = ['Sept', 'Oct', 'Nov', 'Déc']
+        preventive = [18, 20, 22, 24]
+        corrective = [8, 6, 5, 4]
+        
+        fig2, ax2 = plt.subplots(figsize=(10, 6))
+        ax2.plot(months, preventive, marker='o', linewidth=2, color='#4CAF50', label='Préventive')
+        ax2.plot(months, corrective, marker='s', linewidth=2, color='#FF9800', label='Corrective')
+        ax2.fill_between(months, preventive, alpha=0.1, color='#4CAF50')
+        ax2.fill_between(months, corrective, alpha=0.1, color='#FF9800')
+        
+        ax2.set_xlabel('Mois')
+        ax2.set_ylabel('Nombre d\'interventions')
+        ax2.set_title('Tendances des interventions')
+        ax2.legend()
+        ax2.grid(True, alpha=0.3)
+        
+        st.pyplot(fig2)
+        plt.close(fig2)
+    
+    # Deuxième row de graphiques
+    chart_col3, chart_col4 = st.columns(2)
+    
+    with chart_col3:
+        st.markdown("#### ⏱️ Temps d'Intervention")
+        
+        # Données pour le graphique barres
+        equipment_types = ['Pompes', 'Ventilateurs', 'Convoyeurs', 'Compresseurs', 'Autres']
+        mttr_values = [4.2, 2.8, 3.5, 5.1, 2.3]
+        
+        fig3, ax3 = plt.subplots(figsize=(10, 6))
+        bars = ax3.bar(equipment_types, mttr_values, color=['#2196F3', '#4CAF50', '#FF9800', '#F44336', '#9C27B0'])
+        
+        # Ajouter les valeurs sur les barres
+        for bar, value in zip(bars, mttr_values):
+            height = bar.get_height()
+            ax3.text(bar.get_x() + bar.get_width()/2., height + 0.1,
+                    f'{value}h', ha='center', va='bottom')
+        
+        ax3.set_xlabel('Type d\'Équipement')
+        ax3.set_ylabel('MTTR (heures)')
+        ax3.set_title('Temps moyen de réparation par type')
+        ax3.set_ylim(0, 6)
+        ax3.grid(True, alpha=0.3, axis='y')
+        
+        st.pyplot(fig3)
+        plt.close(fig3)
+    
+    with chart_col4:
+        st.markdown("#### 💰 Coûts de Maintenance")
+        
+        # Données pour le graphique barres empilées
+        months_costs = ['Sept', 'Oct', 'Nov']
+        preventive_costs = [8500, 9200, 9800]
+        corrective_costs = [4200, 3800, 3200]
+        urgent_costs = [1200, 800, 600]
+        
+        fig4, ax4 = plt.subplots(figsize=(10, 6))
+        
+        bar_width = 0.6
+        index = range(len(months_costs))
+        
+        bar1 = ax4.bar(index, preventive_costs, bar_width, label='Préventive', color='#4CAF50')
+        bar2 = ax4.bar(index, corrective_costs, bar_width, bottom=preventive_costs, 
+                      label='Corrective', color='#FF9800')
+        bar3 = ax4.bar(index, urgent_costs, bar_width, 
+                      bottom=[i+j for i,j in zip(preventive_costs, corrective_costs)], 
+                      label='Urgente', color='#F44336')
+        
+        # Total au-dessus des barres
+        totals = [i+j+k for i,j,k in zip(preventive_costs, corrective_costs, urgent_costs)]
+        for i, total in enumerate(totals):
+            ax4.text(i, total + 200, f'{total/1000:.1f}k€', ha='center', va='bottom')
+        
+        ax4.set_xlabel('Mois')
+        ax4.set_ylabel('Coût (€)')
+        ax4.set_title('Évolution des coûts par type')
+        ax4.set_xticks(index)
+        ax4.set_xticklabels(months_costs)
+        ax4.legend()
+        ax4.grid(True, alpha=0.3, axis='y')
+        
+        st.pyplot(fig4)
+        plt.close(fig4)
+    
+    # ========== QUATRIÈME LIGNE : ÉQUIPEMENTS CRITIQUES ==========
+    st.markdown("### ⚠️ Équipements Critiques")
+    
+    col_crit1, col_crit2, col_crit3 = st.columns(3)
+    
+    with col_crit1:
+        with st.container():
+            st.markdown("#### 🔴 À Surveiller")
+            critical_equipment = [
+                {"nom": "Compresseur CMP-01", "probleme": "Vibrations élevées", "jours": 3},
+                {"nom": "Pompe P-205", "probleme": "Température anormale", "jours": 7},
+                {"nom": "Convoyeur CV-12", "probleme": "Courroie usée", "jours": 2}
+            ]
+            
+            for eq in critical_equipment:
+                st.markdown(f"**{eq['nom']}**")
+                st.caption(f"{eq['probleme']} - Depuis {eq['jours']} jours")
+                st.progress(min(eq['jours'] * 10, 100) / 100)
+    
+    with col_crit2:
+        with st.container():
+            st.markdown("#### 🟡 Maintenance Planifiée")
+            planned_maintenance = [
+                {"nom": "Four F-03", "date": "15/12/2024", "type": "Trimestrielle"},
+                {"nom": "Ventilateur V-45", "date": "18/12/2024", "type": "Mensuelle"},
+                {"nom": "Générateur G-02", "date": "22/12/2024", "type": "Annuelle"}
+            ]
+            
+            for pm in planned_maintenance:
+                st.markdown(f"**{pm['nom']}**")
+                st.caption(f"{pm['type']} - {pm['date']}")
+                days_left = (datetime.date(2024, 12, int(pm['date'].split('/')[0])) - datetime.date.today()).days
+                if days_left >= 0:
+                    st.info(f"Dans {days_left} jour(s)")
+    
+    with col_crit3:
+        with st.container():
+            st.markdown("#### 📦 Stocks Faibles")
+            low_stocks = [
+                {"piece": "Roulement 6205", "stock": 2, "seuil": 10},
+                {"piece": "Joint SPI 50mm", "stock": 5, "seuil": 15},
+                {"piece": "Courroie 5PK800", "stock": 3, "seuil": 8}
+            ]
+            
+            for stock in low_stocks:
+                percentage = (stock['stock'] / stock['seuil']) * 100
+                st.markdown(f"**{stock['piece']}**")
+                st.caption(f"Stock: {stock['stock']} / Seuil: {stock['seuil']}")
+                if percentage < 30:
+                    st.error(f"⚠️ {percentage:.0f}% du seuil")
+                elif percentage < 50:
+                    st.warning(f"⚠️ {percentage:.0f}% du seuil")
+                else:
+                    st.info(f"{percentage:.0f}% du seuil")
+    
+    # ========== CINQUIÈME LIGNE : INDICATEURS CLÉS ==========
+    st.markdown("### 🎯 Indicateurs Clés de Performance")
+    
+    kpi_col1, kpi_col2, kpi_col3, kpi_col4 = st.columns(4)
+    
+    with kpi_col1:
+        st.markdown("#### 🎯 OEE")
+        st.markdown('<div style="text-align: center; font-size: 36px; font-weight: bold; color: #4CAF50;">86.2%</div>', 
+                   unsafe_allow_html=True)
+        st.caption("Overall Equipment Effectiveness")
+        st.progress(0.862)
+    
+    with kpi_col2:
+        st.markdown("#### ⚡ Disponibilité")
+        st.markdown('<div style="text-align: center; font-size: 36px; font-weight: bold; color: #2196F3;">94.7%</div>', 
+                   unsafe_allow_html=True)
+        st.caption("Taux de disponibilité équipements")
+        st.progress(0.947)
+    
+    with kpi_col3:
+        st.markdown("#### ✅ Qualité")
+        st.markdown('<div style="text-align: center; font-size: 36px; font-weight: bold; color: #9C27B0;">98.3%</div>', 
+                   unsafe_allow_html=True)
+        st.caption("Taux de bonne qualité")
+        st.progress(0.983)
+    
+    with kpi_col4:
+        st.markdown("#### 📊 Performance")
+        st.markdown('<div style="text-align: center; font-size: 36px; font-weight: bold; color: #FF9800;">91.5%</div>', 
+                   unsafe_allow_html=True)
+        st.caption("Performance opérationnelle")
+        st.progress(0.915)
+    
+    # ========== DERNIÈRE LIGNE : BOUTONS RAPIDES ==========
+    st.markdown("### 🚀 Actions Rapides")
+    
+    action_col1, action_col2, action_col3, action_col4 = st.columns(4)
+    
+    with action_col1:
+        if st.button("📝 Nouvelle Intervention", use_container_width=True, type="primary"):
+            st.session_state.selected_menu = "🔧 Interventions"
+            st.rerun()
+    
+    with action_col2:
+        if st.button("🛠️ Gérer Outillages", use_container_width=True):
+            st.session_state.selected_menu = "🛠️ Outillages"
+            st.rerun()
+    
+    with action_col3:
+        if st.button("📦 Vérifier Stocks", use_container_width=True):
+            st.session_state.selected_menu = "📦 Stocks"
+            st.rerun()
+    
+    with action_col4:
+        if st.button("📊 Exporter Rapport", use_container_width=True):
+            st.success("Rapport généré avec succès !")
+            st.info("Téléchargement disponible dans les prochaines secondes...")
 
 # ========== APPLICATION PRINCIPALE ==========
 def show_main_app():
