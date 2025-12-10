@@ -613,56 +613,56 @@ def show_fournisseurs():
         st.info("Aucun fournisseur enregistré")
         return
     
-    # Affichage par cartes
+    # Affichage par cartes avec Streamlit natif
     for _, fournisseur in fournisseurs.iterrows():
-        # Construire le HTML de la carte
-        html_card = f'''
-        <div class="supplier-card">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h4 style="margin: 0;">{fournisseur["nom"]}</h4>
-                <span class="type-fournisseur">Fournisseur</span>
-            </div>
+        with st.container():
+            # Carte du fournisseur
+            col1, col2 = st.columns([4, 1])
+            with col1:
+                st.markdown(f"### {fournisseur['nom']}")
+                st.markdown(f"**Spécialité:** {fournisseur['specialite']}")
+            with col2:
+                st.markdown('<span class="type-fournisseur">Fournisseur</span>', unsafe_allow_html=True)
             
-            <p style="color: #4B5563; margin: 10px 0;"><strong>Spécialité:</strong> {fournisseur["specialite"]}</p>
+            # Métriques
+            col_a, col_b, col_c = st.columns(3)
+            with col_a:
+                delai_color = "🟢" if fournisseur['delai_livraison_moyen'] <= 3 else "🟡" if fournisseur['delai_livraison_moyen'] <= 7 else "🔴"
+                st.metric("Délai livraison", f"{delai_color} {fournisseur['delai_livraison_moyen']} jours")
             
-            <div style="display: flex; gap: 15px; margin-bottom: 10px;">
-                <div>
-                    <small style="color: #6B7280;">Délai livraison</small><br>
-                    <span class="delivery-badge {'delivery-fast' if fournisseur['delai_livraison_moyen'] <= 3 else 'delivery-medium' if fournisseur['delai_livraison_moyen'] <= 7 else 'delivery-slow'}">
-                        {fournisseur['delai_livraison_moyen']} jours
-                    </span>
-                </div>
-                <div>
-                    <small style="color: #6B7280;">Fiabilité</small><br>
-                    <strong>{fournisseur["note_fiabilite"]}/5</strong>
-                </div>
-                <div>
-                    <small style="color: #6B7280;">Contrat</small><br>
-                    <span class="{'contract-active' if fournisseur['contrat_actif'] else 'contract-expired'}">
-                        {'Actif' if fournisseur['contrat_actif'] else 'Inactif'}
-                    </span>
-                </div>
-            </div>
+            with col_b:
+                st.metric("Fiabilité", f"{fournisseur['note_fiabilite']}/5")
             
-            <div class="contact-info">
-                <strong>📞 Contact:</strong> {fournisseur["contact_nom"]}<br>
-                <strong>✉️ Email:</strong> {fournisseur["contact_email"]}<br>
-                <strong>📍 Adresse:</strong> {fournisseur["adresse"][:50]}...
-            </div>
+            with col_c:
+                contrat_status = "✅ Actif" if fournisseur['contrat_actif'] else "❌ Inactif"
+                st.metric("Contrat", contrat_status)
             
-            <div style="margin-top: 15px; display: flex; gap: 10px;">
-                <button style="background: #3B82F6; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">
-                    Commander
-                </button>
-                <button style="background: #F3F4F6; color: #374151; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">
-                    Voir détails
-                </button>
-            </div>
-        </div>
-        '''
-        
-        # Afficher avec st.markdown pour interpréter le HTML
-        st.markdown(html_card, unsafe_allow_html=True)
+            # Informations de contact
+            with st.expander("📞 Informations de contact", expanded=False):
+                st.write(f"**Contact:** {fournisseur['contact_nom']}")
+                st.write(f"**Email:** {fournisseur['contact_email']}")
+                st.write(f"**Téléphone:** {fournisseur['contact_telephone']}")
+                st.write(f"**Adresse:** {fournisseur['adresse']}")
+                st.write(f"**Conditions paiement:** {fournisseur['conditions_paiement']}")
+                st.write(f"**Mode livraison:** {fournisseur['mode_livraison']}")
+            
+            # Boutons d'action
+            col_btn1, col_btn2, col_btn3 = st.columns(3)
+            with col_btn1:
+                if st.button("📦 Commander", key=f"cmd_{fournisseur['id']}"):
+                    st.session_state.selected_supplier = fournisseur['id']
+                    st.info(f"Ouverture formulaire commande pour {fournisseur['nom']}")
+            
+            with col_btn2:
+                if st.button("📋 Voir détails", key=f"detail_{fournisseur['id']}"):
+                    st.info(f"Détails de {fournisseur['nom']}")
+            
+            with col_btn3:
+                if st.button("📞 Contacter", key=f"contact_{fournisseur['id']}"):
+                    st.success(f"Email préparé pour {fournisseur['contact_nom']}")
+            
+            st.markdown("---")
+
 def show_soustraitants():
     """Affiche la liste des sous-traitants"""
     st.subheader("👷 Sous-traitants de maintenance")
@@ -673,57 +673,58 @@ def show_soustraitants():
         st.info("Aucun sous-traitant enregistré")
         return
     
-    # Affichage par cartes
+    # Affichage par cartes avec Streamlit natif
     for _, soustraitant in soustraitants.iterrows():
-        # Construire le HTML de la carte
-        html_card = f'''
-        <div class="supplier-card">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h4 style="margin: 0;">{soustraitant["nom"]}</h4>
-                <span class="type-soustraitant">Sous-traitant</span>
-            </div>
+        with st.container():
+            # Carte du sous-traitant
+            col1, col2 = st.columns([4, 1])
+            with col1:
+                st.markdown(f"### {soustraitant['nom']}")
+                st.markdown(f"**Spécialité:** {soustraitant['specialite']}")
+            with col2:
+                st.markdown('<span class="type-soustraitant">Sous-traitant</span>', unsafe_allow_html=True)
             
-            <p style="color: #4B5563; margin: 10px 0;">
-                <strong>Spécialité:</strong> {soustraitant["specialite"]}<br>
-                <strong>Type intervention:</strong> {soustraitant["intervention_type"]}
-            </p>
+            # Métriques
+            col_a, col_b, col_c = st.columns(3)
+            with col_a:
+                st.metric("Taux horaire", f"{soustraitant['taux_horaire']} €/h")
             
-            <div style="display: flex; gap: 15px; margin-bottom: 10px;">
-                <div>
-                    <small style="color: #6B7280;">Taux horaire</small><br>
-                    <strong>{soustraitant["taux_horaire"]} €/h</strong>
-                </div>
-                <div>
-                    <small style="color: #6B7280;">Zone</small><br>
-                    <strong>{soustraitant["zone_intervention"]}</strong>
-                </div>
-                <div>
-                    <small style="color: #6B7280;">Assurance RC Pro</small><br>
-                    <span class="{'contract-active' if soustraitant['assurance_rc_pro'] else 'contract-expired'}">
-                        {'Oui' if soustraitant['assurance_rc_pro'] else 'Non'}
-                    </span>
-                </div>
-            </div>
+            with col_b:
+                st.metric("Zone d'intervention", soustraitant['zone_intervention'])
             
-            <div class="contact-info">
-                <strong>📞 Contact:</strong> {soustraitant["contact_nom"]}<br>
-                <strong>✉️ Email:</strong> {soustraitant["contact_email"]}<br>
-                <strong>📍 Adresse:</strong> {soustraitant["adresse"][:50]}...
-            </div>
+            with col_c:
+                assurance = "✅ Oui" if soustraitant['assurance_rc_pro'] else "❌ Non"
+                st.metric("Assurance RC Pro", assurance)
             
-            <div style="margin-top: 15px; display: flex; gap: 10px;">
-                <button style="background: #10B981; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">
-                    Demander intervention
-                </button>
-                <button style="background: #F3F4F6; color: #374151; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">
-                    Voir détails
-                </button>
-            </div>
-        </div>
-        '''
-        
-        # Afficher avec st.markdown pour interpréter le HTML
-        st.markdown(html_card, unsafe_allow_html=True)
+            # Informations de contact
+            with st.expander("📞 Informations de contact", expanded=False):
+                st.write(f"**Contact:** {soustraitant['contact_nom']}")
+                st.write(f"**Email:** {soustraitant['contact_email']}")
+                st.write(f"**Téléphone:** {soustraitant['contact_telephone']}")
+                st.write(f"**Adresse:** {soustraitant['adresse']}")
+                st.write(f"**Type intervention:** {soustraitant['intervention_type']}")
+                
+                if soustraitant['certifications']:
+                    st.write("**Certifications:**")
+                    for cert in soustraitant['certifications']:
+                        st.write(f"- {cert}")
+            
+            # Boutons d'action
+            col_btn1, col_btn2, col_btn3 = st.columns(3)
+            with col_btn1:
+                if st.button("🔧 Demander intervention", key=f"inter_{soustraitant['id']}"):
+                    st.session_state.selected_contractor = soustraitant['id']
+                    st.info(f"Demande d'intervention à {soustraitant['nom']}")
+            
+            with col_btn2:
+                if st.button("📋 Voir détails", key=f"cdetail_{soustraitant['id']}"):
+                    st.info(f"Détails de {soustraitant['nom']}")
+            
+            with col_btn3:
+                if st.button("📅 Planifier", key=f"plan_{soustraitant['id']}"):
+                    st.success(f"Planning ouvert pour {soustraitant['nom']}")
+            
+            st.markdown("---")
 def show_new_tier_form():
     """Affiche le formulaire pour ajouter un nouveau tier"""
     st.subheader("➕ Ajouter un nouveau tier")
