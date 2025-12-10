@@ -5,7 +5,6 @@ import json
 import hashlib
 import time
 from pathlib import Path
-import matplotlib.pyplot as plt
 
 # ========== CONFIGURATION ==========
 st.set_page_config(
@@ -2640,7 +2639,7 @@ def show_admin():
                     st.error("Veuillez sélectionner un fichier")
 
 def show_dashboard():
-    """Tableau de bord amélioré avec KPI de maintenance"""
+    """Tableau de bord amélioré avec KPI de maintenance (sans matplotlib)"""
     st.title("🏠 Tableau de Bord Maintenance")
     
     # Données pour les métriques
@@ -2740,125 +2739,173 @@ def show_dashboard():
         )
         st.caption("À traiter")
     
-    # ========== TROISIÈME LIGNE : GRAPHIQUES ==========
+    # ========== TROISIÈME LIGNE : GRAPHIQUES AVEC STREAMLIT ==========
     st.markdown("### 📊 Analyse de la Maintenance")
     
-    # Premier row de graphiques
+    # Premier row de visualisations
     chart_col1, chart_col2 = st.columns(2)
     
     with chart_col1:
         st.markdown("#### 🔧 Répartition des Interventions")
         
-        # Données pour le graphique camembert
-        intervention_types = {
-            'Préventive': 65,
-            'Corrective': 25,
-            'Améliorative': 8,
-            'Urgente': 2
+        # Données pour le tableau
+        intervention_data = {
+            'Type': ['Préventive', 'Corrective', 'Améliorative', 'Urgente'],
+            'Nombre': [65, 25, 8, 2],
+            'Pourcentage': ['65%', '25%', '8%', '2%']
         }
         
-        fig1, ax1 = plt.subplots(figsize=(8, 6))
-        colors = ['#4CAF50', '#FF9800', '#2196F3', '#F44336']
-        ax1.pie(
-            intervention_types.values(),
-            labels=intervention_types.keys(),
-            autopct='%1.1f%%',
-            colors=colors,
-            startangle=90
-        )
-        ax1.axis('equal')
-        st.pyplot(fig1)
-        plt.close(fig1)
+        # Affichage sous forme de tableau avec barres de progression
+        for i, (type_int, nombre, pourcent) in enumerate(zip(
+            intervention_data['Type'], 
+            intervention_data['Nombre'], 
+            intervention_data['Pourcentage']
+        )):
+            col_type, col_prog = st.columns([2, 5])
+            with col_type:
+                if type_int == 'Préventive':
+                    st.markdown(f"🟢 **{type_int}**")
+                elif type_int == 'Corrective':
+                    st.markdown(f"🟡 **{type_int}**")
+                elif type_int == 'Améliorative':
+                    st.markdown(f"🔵 **{type_int}**")
+                else:
+                    st.markdown(f"🔴 **{type_int}**")
+            
+            with col_prog:
+                progress_value = nombre / 100
+                if type_int == 'Préventive':
+                    st.progress(progress_value, text=pourcent)
+                elif type_int == 'Corrective':
+                    st.progress(progress_value, text=pourcent)
+                elif type_int == 'Améliorative':
+                    st.progress(progress_value, text=pourcent)
+                else:
+                    st.progress(progress_value, text=pourcent)
         
         st.caption("Objectif: ≥80% de maintenance préventive")
     
     with chart_col2:
         st.markdown("#### 📅 Évolution Mensuelle")
         
-        # Données pour le graphique linéaire
-        months = ['Sept', 'Oct', 'Nov', 'Déc']
-        preventive = [18, 20, 22, 24]
-        corrective = [8, 6, 5, 4]
+        # Données pour le tableau
+        evolution_data = pd.DataFrame({
+            'Mois': ['Septembre', 'Octobre', 'Novembre', 'Décembre'],
+            'Préventive': [18, 20, 22, 24],
+            'Corrective': [8, 6, 5, 4],
+            'Total': [26, 26, 27, 28]
+        })
         
-        fig2, ax2 = plt.subplots(figsize=(10, 6))
-        ax2.plot(months, preventive, marker='o', linewidth=2, color='#4CAF50', label='Préventive')
-        ax2.plot(months, corrective, marker='s', linewidth=2, color='#FF9800', label='Corrective')
-        ax2.fill_between(months, preventive, alpha=0.1, color='#4CAF50')
-        ax2.fill_between(months, corrective, alpha=0.1, color='#FF9800')
+        # Affichage du tableau
+        st.dataframe(
+            evolution_data,
+            column_config={
+                "Mois": st.column_config.TextColumn("Mois"),
+                "Préventive": st.column_config.ProgressColumn(
+                    "Préventive",
+                    help="Nombre d'interventions préventives",
+                    format="%d",
+                    min_value=0,
+                    max_value=30,
+                ),
+                "Corrective": st.column_config.ProgressColumn(
+                    "Corrective",
+                    help="Nombre d'interventions correctives",
+                    format="%d",
+                    min_value=0,
+                    max_value=30,
+                ),
+                "Total": st.column_config.NumberColumn(
+                    "Total",
+                    help="Total des interventions",
+                    format="%d"
+                )
+            },
+            hide_index=True,
+            use_container_width=True
+        )
         
-        ax2.set_xlabel('Mois')
-        ax2.set_ylabel('Nombre d\'interventions')
-        ax2.set_title('Tendances des interventions')
-        ax2.legend()
-        ax2.grid(True, alpha=0.3)
-        
-        st.pyplot(fig2)
-        plt.close(fig2)
+        # Mini-graphique avec st.bar_chart
+        chart_data = evolution_data.set_index('Mois')[['Préventive', 'Corrective']]
+        st.bar_chart(chart_data)
     
-    # Deuxième row de graphiques
+    # Deuxième row de visualisations
     chart_col3, chart_col4 = st.columns(2)
     
     with chart_col3:
-        st.markdown("#### ⏱️ Temps d'Intervention")
+        st.markdown("#### ⏱️ Temps d'Intervention (MTTR)")
         
-        # Données pour le graphique barres
-        equipment_types = ['Pompes', 'Ventilateurs', 'Convoyeurs', 'Compresseurs', 'Autres']
-        mttr_values = [4.2, 2.8, 3.5, 5.1, 2.3]
+        # Données pour MTTR
+        mttr_data = pd.DataFrame({
+            'Équipement': ['Pompes', 'Ventilateurs', 'Convoyeurs', 'Compresseurs', 'Autres'],
+            'MTTR (h)': [4.2, 2.8, 3.5, 5.1, 2.3],
+            'Objectif (h)': [3.5, 2.5, 3.0, 4.0, 2.0]
+        })
         
-        fig3, ax3 = plt.subplots(figsize=(10, 6))
-        bars = ax3.bar(equipment_types, mttr_values, color=['#2196F3', '#4CAF50', '#FF9800', '#F44336', '#9C27B0'])
-        
-        # Ajouter les valeurs sur les barres
-        for bar, value in zip(bars, mttr_values):
-            height = bar.get_height()
-            ax3.text(bar.get_x() + bar.get_width()/2., height + 0.1,
-                    f'{value}h', ha='center', va='bottom')
-        
-        ax3.set_xlabel('Type d\'Équipement')
-        ax3.set_ylabel('MTTR (heures)')
-        ax3.set_title('Temps moyen de réparation par type')
-        ax3.set_ylim(0, 6)
-        ax3.grid(True, alpha=0.3, axis='y')
-        
-        st.pyplot(fig3)
-        plt.close(fig3)
+        # Affichage avec barres de progression
+        for _, row in mttr_data.iterrows():
+            col_name, col_mttr = st.columns([3, 4])
+            with col_name:
+                st.write(f"**{row['Équipement']}**")
+            
+            with col_mttr:
+                # Calcul du pourcentage par rapport à l'objectif
+                if row['MTTR (h)'] <= row['Objectif (h)']:
+                    # En dessous de l'objectif = bon
+                    ratio = 1 - (row['MTTR (h)'] / row['Objectif (h)'])
+                    st.progress(min(ratio, 1), text=f"{row['MTTR (h)']}h")
+                    st.caption(f"✓ Objectif: {row['Objectif (h)']}h")
+                else:
+                    # Au-dessus de l'objectif = à améliorer
+                    ratio = row['Objectif (h)'] / row['MTTR (h)']
+                    st.progress(min(ratio, 1), text=f"{row['MTTR (h)']}h")
+                    st.caption(f"⚠️ Objectif: {row['Objectif (h)']}h")
     
     with chart_col4:
         st.markdown("#### 💰 Coûts de Maintenance")
         
-        # Données pour le graphique barres empilées
-        months_costs = ['Sept', 'Oct', 'Nov']
-        preventive_costs = [8500, 9200, 9800]
-        corrective_costs = [4200, 3800, 3200]
-        urgent_costs = [1200, 800, 600]
+        # Données pour les coûts
+        cost_data = pd.DataFrame({
+            'Mois': ['Sept', 'Oct', 'Nov'],
+            'Préventive (k€)': [8.5, 9.2, 9.8],
+            'Corrective (k€)': [4.2, 3.8, 3.2],
+            'Urgente (k€)': [1.2, 0.8, 0.6],
+            'Total (k€)': [13.9, 13.8, 13.6]
+        })
         
-        fig4, ax4 = plt.subplots(figsize=(10, 6))
+        # Affichage sous forme de tableau
+        st.dataframe(
+            cost_data,
+            column_config={
+                "Mois": st.column_config.TextColumn("Mois"),
+                "Préventive (k€)": st.column_config.NumberColumn(
+                    "Préventive",
+                    help="Coût maintenance préventive",
+                    format="%.1f k€"
+                ),
+                "Corrective (k€)": st.column_config.NumberColumn(
+                    "Corrective",
+                    help="Coût maintenance corrective",
+                    format="%.1f k€"
+                ),
+                "Urgente (k€)": st.column_config.NumberColumn(
+                    "Urgente",
+                    help="Coût maintenance urgente",
+                    format="%.1f k€"
+                ),
+                "Total (k€)": st.column_config.NumberColumn(
+                    "Total",
+                    help="Coût total maintenance",
+                    format="%.1f k€"
+                )
+            },
+            hide_index=True,
+            use_container_width=True
+        )
         
-        bar_width = 0.6
-        index = range(len(months_costs))
-        
-        bar1 = ax4.bar(index, preventive_costs, bar_width, label='Préventive', color='#4CAF50')
-        bar2 = ax4.bar(index, corrective_costs, bar_width, bottom=preventive_costs, 
-                      label='Corrective', color='#FF9800')
-        bar3 = ax4.bar(index, urgent_costs, bar_width, 
-                      bottom=[i+j for i,j in zip(preventive_costs, corrective_costs)], 
-                      label='Urgente', color='#F44336')
-        
-        # Total au-dessus des barres
-        totals = [i+j+k for i,j,k in zip(preventive_costs, corrective_costs, urgent_costs)]
-        for i, total in enumerate(totals):
-            ax4.text(i, total + 200, f'{total/1000:.1f}k€', ha='center', va='bottom')
-        
-        ax4.set_xlabel('Mois')
-        ax4.set_ylabel('Coût (€)')
-        ax4.set_title('Évolution des coûts par type')
-        ax4.set_xticks(index)
-        ax4.set_xticklabels(months_costs)
-        ax4.legend()
-        ax4.grid(True, alpha=0.3, axis='y')
-        
-        st.pyplot(fig4)
-        plt.close(fig4)
+        # Graphique linéaire des totaux
+        total_chart_data = cost_data.set_index('Mois')['Total (k€)']
+        st.line_chart(total_chart_data)
     
     # ========== QUATRIÈME LIGNE : ÉQUIPEMENTS CRITIQUES ==========
     st.markdown("### ⚠️ Équipements Critiques")
@@ -3047,4 +3094,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-pip install matplotlib
+
