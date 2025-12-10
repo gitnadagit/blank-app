@@ -307,8 +307,8 @@ def show_login_page():
         
         # Formulaire de connexion
         with st.form("login_form"):
-            username = st.text_input("Nom d'utilisateur", value="admin")
-            password = st.text_input("Mot de passe", type="password", value="admin123")
+            username = st.text_input("Nom d'utilisateur", value="")
+            password = st.text_input("Mot de passe", type="password", value="")
             
             submitted = st.form_submit_button("🔓 Se connecter", type="primary", use_container_width=True)
             
