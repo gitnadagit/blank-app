@@ -1289,7 +1289,7 @@ def show_remplir_bt_preventif(bt_data):
         
         # Consommables utilisés
         consommables = st.text_area("Consommables utilisés", 
-            placeholder "Graisse, joints, filtres, etc.")
+            placeholder="Graisse, joints, filtres, etc.")  # CORRECTION ICI
         
         # Signature
         signature = st.text_input("Nom et signature du technicien",
@@ -1378,7 +1378,7 @@ def show_statistiques_preventives():
     with col3:
         st.metric("Taux réalisation", "83%")
     with col4:
-        st.metric "Économies estimées", "45k€"
+        st.metric("Économies estimées", "45k€")  # CORRECTION ICI
     
     # Graphiques
     col_a, col_b = st.columns(2)
@@ -1403,7 +1403,7 @@ def show_statistiques_preventives():
     st.markdown("#### Interventions en retard")
     retards = pd.DataFrame({
         'Équipement': ['Compresseur COMP-01', 'Pompe P-203', 'Ventilateur V-045'],
-        'Type': 'Trimestrielle',
+        'Type': ['Trimestrielle', 'Trimestrielle', 'Trimestrielle'],  # Correction : liste de strings
         'Date prévue': ['2024-11-15', '2024-11-20', '2024-11-25'],
         'Jours retard': [15, 10, 5]
     })
