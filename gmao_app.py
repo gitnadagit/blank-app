@@ -878,128 +878,313 @@ def show_stocks():
                 st.success(f"Commande passée pour {quantite} {article} chez {fournisseur}")
                 st.balloons()
 
-def show_fournisseurs():
-    """Affiche la liste des fournisseurs"""
-    st.subheader("🏭 Fournisseurs de pièces détachées")
+def show_tiers_management():
+    """Page de gestion des tiers (fournisseurs et sous-traitants)"""
+    st.title("🤝 Gestion des Tiers")
     
-    fournisseurs = data_manager.get_fournisseurs()
+    # Onglets
+    tab1, tab2, tab3 = st.tabs(["📋 Liste des Tiers", "🏭 Fournisseurs", "🔧 Sous-traitants"])
     
-    if fournisseurs.empty:
-        st.info("Aucun fournisseur enregistré")
+    with tab1:
+        show_all_tiers()
+    
+    with tab2:
+        show_fournisseurs()
+    
+    with tab3:
+        show_soustraitants()
+
+def show_all_tiers():
+    """Affiche tous les tiers"""
+    st.subheader("📋 Liste complète des Tiers")
+    
+    # Récupérer tous les tiers
+    all_tiers = data_manager.get_all_tiers()
+    
+    if all_tiers.empty:
+        st.info("Aucun tiers enregistré")
         return
     
-    # Affichage par cartes avec Streamlit natif
-    for _, fournisseur in fournisseurs.iterrows():
-        with st.container():
-            # Carte du fournisseur
-            col1, col2 = st.columns([4, 1])
-            with col1:
-                st.markdown(f"### {fournisseur['nom']}")
-                st.markdown(f"**Spécialité:** {fournisseur['specialite']}")
-            with col2:
-                st.markdown('<span class="type-fournisseur">Fournisseur</span>', unsafe_allow_html=True)
+    # Filtres
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        type_filter = st.multiselect("Type", ["fournisseur", "soustraitant"])
+    with col2:
+        contrat_filter = st.multiselect("Contrat", ["Actif", "Inactif"])
+    with col3:
+        search_term = st.text_input("Rechercher par nom")
+    
+    # Appliquer les filtres
+    filtered = all_tiers.copy()
+    
+    if type_filter:
+        filtered = filtered[filtered["type"].isin(type_filter)]
+    
+    if contrat_filter:
+        if "Actif" in contrat_filter:
+            filtered = filtered[filtered["contrat_actif"] == True]
+        elif "Inactif" in contrat_filter:
+            filtered = filtered[filtered["contrat_actif"] == False]
+    
+    if search_term:
+        filtered = filtered[filtered["nom"].str.contains(search_term, case=False, na=False)]
+    
+    # Affichage
+    if not filtered.empty:
+        for _, tier in filtered.iterrows():
+            with st.container():
+                col_a1, col_a2 = st.columns([3, 1])
+                with col_a1:
+                    st.markdown(f"### {tier['nom']}")
+                    st.markdown(f"**Type:** {tier['type'].capitalize()} | **Spécialité:** {tier.get('specialite', 'N/A')}")
+                
+                with col_a2:
+                    status = "🟢 Actif" if tier.get('contrat_actif', False) else "🔴 Inactif"
+                    st.markdown(f"**{status}**")
+                
+                col_b1, col_b2 = st.columns(2)
+                with col_b1:
+                    st.write(f"**Contact:** {tier['contact_nom']}")
+                    st.write(f"**Email:** {tier['contact_email']}")
+                    st.write(f"**Téléphone:** {tier['contact_telephone']}")
+                
+                with col_b2:
+                    st.write(f"**Adresse:** {tier['adresse']}")
+                    if 'date_debut_contrat' in tier and tier['date_debut_contrat']:
+                        st.write(f"**Contrat depuis:** {tier['date_debut_contrat']}")
+                    
+                    # Affichage spécifique selon le type
+                    if tier['type'] == 'fournisseur':
+                        if 'delai_livraison_moyen' in tier:
+                            st.write(f"**Délai livraison:** {tier['delai_livraison_moyen']} jours")
+                    
+                    elif tier['type'] == 'soustraitant':
+                        if 'taux_horaire' in tier:
+                            st.write(f"**Taux horaire:** {tier['taux_horaire']} €/h")
+                
+                with st.expander("📝 Détails complets"):
+                    # Affichage spécifique selon le type
+                    if tier['type'] == 'fournisseur':
+                        col_c1, col_c2 = st.columns(2)
+                        with col_c1:
+                            st.write(f"**Mode livraison:** {tier.get('mode_livraison', 'N/A')}")
+                            st.write(f"**Note fiabilité:** {tier.get('note_fiabilite', 'N/A')}")
+                            st.write(f"**Date début contrat:** {tier.get('date_debut_contrat', 'N/A')}")
+                            st.write(f"**Date fin contrat:** {tier.get('date_fin_contrat', 'N/A')}")
+                        
+                        with col_c2:
+                            st.write(f"**Conditions paiement:** {tier.get('conditions_paiement', 'N/A')}")
+                            st.write(f"**Notes:** {tier.get('notes', 'Aucune')}")
+                    
+                    elif tier['type'] == 'soustraitant':
+                        col_c1, col_c2 = st.columns(2)
+                        with col_c1:
+                            st.write(f"**Type intervention:** {tier.get('intervention_type', 'N/A')}")
+                            st.write(f"**Zone intervention:** {tier.get('zone_intervention', 'N/A')}")
+                            st.write(f"**Certifications:** {', '.join(tier.get('certifications', []))}")
+                            st.write(f"**Date début contrat:** {tier.get('date_debut_contrat', 'N/A')}")
+                        
+                        with col_c2:
+                            st.write(f"**Date fin contrat:** {tier.get('date_fin_contrat', 'N/A')}")
+                            st.write(f"**Assurance RC Pro:** {'✅ Oui' if tier.get('assurance_rc_pro', False) else '❌ Non'}")
+                            if tier.get('assurance_rc_pro', False):
+                                st.write(f"**Montant assurance:** {tier.get('montant_assurance', 'N/A')}")
+                            st.write(f"**Notes:** {tier.get('notes', 'Aucune')}")
+                
+                col_btn1, col_btn2, col_btn3 = st.columns(3)
+                with col_btn1:
+                    if st.button("✏️ Modifier", key=f"edit_{tier['id']}"):
+                        st.info(f"Modification de {tier['nom']} - Fonctionnalité en développement")
+                
+                with col_btn2:
+                    if tier.get('contrat_actif', False):
+                        if st.button("❌ Désactiver", key=f"deactivate_{tier['id']}"):
+                            st.warning(f"Désactivation de {tier['nom']} - Fonctionnalité en développement")
+                    else:
+                        if st.button("✅ Activer", key=f"activate_{tier['id']}"):
+                            st.success(f"Activation de {tier['nom']} - Fonctionnalité en développement")
+                
+                with col_btn3:
+                    if st.button("📧 Contacter", key=f"contact_{tier['id']}"):
+                        st.info(f"Contact {tier['contact_email']} - Fonctionnalité en développement")
+                
+                st.markdown("---")
+    else:
+        st.warning("Aucun tiers ne correspond aux critères")
+
+def show_fournisseurs():
+    """Affiche la gestion des fournisseurs"""
+    st.subheader("🏭 Fournisseurs")
+    
+    col1, col2 = st.columns([3, 1])
+    
+    with col1:
+        st.markdown("**Ajouter un nouveau fournisseur**")
+        
+        with st.form("new_fournisseur_form"):
+            nom = st.text_input("Nom de l'entreprise*", placeholder="Ex: SKF France")
+            specialite = st.text_input("Spécialité*", placeholder="Ex: Roulements et joints")
+            contact_nom = st.text_input("Nom du contact*", placeholder="Ex: Pierre Dubois")
+            contact_email = st.text_input("Email*", placeholder="Ex: p.dubois@skf.fr")
+            contact_telephone = st.text_input("Téléphone*", placeholder="Ex: 01 23 45 67 89")
+            adresse = st.text_area("Adresse*", placeholder="Ex: 12 Rue des Industries, 75000 Paris")
             
-            # Métriques
-            col_a, col_b, col_c = st.columns(3)
+            col_a, col_b = st.columns(2)
             with col_a:
-                delai_color = "🟢" if fournisseur['delai_livraison_moyen'] <= 3 else "🟡" if fournisseur['delai_livraison_moyen'] <= 7 else "🔴"
-                st.metric("Délai livraison", f"{delai_color} {fournisseur['delai_livraison_moyen']} jours")
+                delai_livraison_moyen = st.number_input("Délai livraison moyen (jours)", min_value=1, value=3)
+                mode_livraison = st.selectbox("Mode livraison", ["Express", "Standard", "Économique"])
+                note_fiabilite = st.slider("Note de fiabilité", 1.0, 5.0, 4.0, 0.1)
             
             with col_b:
-                st.metric("Fiabilité", f"{fournisseur['note_fiabilite']}/5")
+                date_debut = st.date_input("Date début contrat", datetime.date.today())
+                date_fin = st.date_input("Date fin contrat", datetime.date.today() + datetime.timedelta(days=365))
+                conditions_paiement = st.selectbox("Conditions paiement", ["30 jours net", "60 jours net", "Comptant", "Sur facture"])
             
-            with col_c:
-                contrat_status = "✅ Actif" if fournisseur['contrat_actif'] else "❌ Inactif"
-                st.metric("Contrat", contrat_status)
+            notes = st.text_area("Notes", placeholder="Informations complémentaires...")
             
-            # Informations de contact
-            with st.expander("📞 Informations de contact", expanded=False):
-                st.write(f"**Contact:** {fournisseur['contact_nom']}")
-                st.write(f"**Email:** {fournisseur['contact_email']}")
-                st.write(f"**Téléphone:** {fournisseur['contact_telephone']}")
-                st.write(f"**Adresse:** {fournisseur['adresse']}")
-                st.write(f"**Conditions paiement:** {fournisseur['conditions_paiement']}")
-                st.write(f"**Mode livraison:** {fournisseur['mode_livraison']}")
+            if st.form_submit_button("➕ Ajouter le fournisseur", type="primary"):
+                if nom and specialite and contact_nom and contact_email and contact_telephone and adresse:
+                    fournisseur_data = {
+                        "id": max([f["id"] for f in data_manager.tiers["fournisseurs"]], default=0) + 1,
+                        "nom": nom,
+                        "type": "fournisseur",
+                        "specialite": specialite,
+                        "contact_nom": contact_nom,
+                        "contact_email": contact_email,
+                        "contact_telephone": contact_telephone,
+                        "adresse": adresse,
+                        "delai_livraison_moyen": delai_livraison_moyen,
+                        "mode_livraison": mode_livraison,
+                        "note_fiabilite": note_fiabilite,
+                        "contrat_actif": True,
+                        "date_debut_contrat": date_debut.isoformat(),
+                        "date_fin_contrat": date_fin.isoformat(),
+                        "conditions_paiement": conditions_paiement,
+                        "notes": notes
+                    }
+                    
+                    data_manager.tiers["fournisseurs"].append(fournisseur_data)
+                    data_manager.save_tiers()
+                    st.success(f"✅ Fournisseur {nom} ajouté avec succès !")
+                    st.balloons()
+                else:
+                    st.error("Veuillez remplir tous les champs obligatoires (*)")
+    
+    with col2:
+        st.markdown("### Statistiques")
+        fournisseurs = data_manager.get_fournisseurs()
+        
+        if not fournisseurs.empty:
+            st.metric("Nombre", len(fournisseurs))
+            actifs = len(fournisseurs[fournisseurs["contrat_actif"] == True])
+            st.metric("Contrats actifs", actifs)
             
-            # Boutons d'action
-            col_btn1, col_btn2, col_btn3 = st.columns(3)
-            with col_btn1:
-                if st.button("📦 Commander", key=f"cmd_{fournisseur['id']}"):
-                    st.session_state.selected_supplier = fournisseur['id']
-                    st.info(f"Ouverture formulaire commande pour {fournisseur['nom']}")
+            # Fournisseurs avec contrat expirant bientôt
+            today = datetime.date.today()
+            soon = today + datetime.timedelta(days=30)
+            contracts_expiring = 0
             
-            with col_btn2:
-                if st.button("📋 Voir détails", key=f"detail_{fournisseur['id']}"):
-                    st.info(f"Détails de {fournisseur['nom']}")
+            for f in data_manager.tiers["fournisseurs"]:
+                if f.get("contrat_actif", False) and f.get("date_fin_contrat"):
+                    try:
+                        date_fin = datetime.datetime.fromisoformat(f["date_fin_contrat"]).date()
+                        if today <= date_fin <= soon:
+                            contracts_expiring += 1
+                    except:
+                        continue
             
-            with col_btn3:
-                if st.button("📞 Contacter", key=f"contact_{fournisseur['id']}"):
-                    st.success(f"Email préparé pour {fournisseur['contact_nom']}")
-            
-            st.markdown("---")
+            if contracts_expiring > 0:
+                st.warning(f"⚠️ {contracts_expiring} contrat(s) expire(nt) bientôt")
+            else:
+                st.success("✅ Aucun contrat n'expire dans les 30 jours")
+        else:
+            st.info("Aucun fournisseur")
 
 def show_soustraitants():
-    """Affiche la liste des sous-traitants"""
-    st.subheader("👷 Sous-traitants de maintenance")
+    """Affiche la gestion des sous-traitants"""
+    st.subheader("🔧 Sous-traitants")
     
-    soustraitants = data_manager.get_soustraitants()
+    col1, col2 = st.columns([3, 1])
     
-    if soustraitants.empty:
-        st.info("Aucun sous-traitant enregistré")
-        return
-    
-    # Affichage par cartes avec Streamlit natif
-    for _, soustraitant in soustraitants.iterrows():
-        with st.container():
-            # Carte du sous-traitant
-            col1, col2 = st.columns([4, 1])
-            with col1:
-                st.markdown(f"### {soustraitant['nom']}")
-                st.markdown(f"**Spécialité:** {soustraitant['specialite']}")
-            with col2:
-                st.markdown('<span class="type-soustraitant">Sous-traitant</span>', unsafe_allow_html=True)
+    with col1:
+        st.markdown("**Ajouter un nouveau sous-traitant**")
+        
+        with st.form("new_soustraitant_form"):
+            nom = st.text_input("Nom de l'entreprise*", placeholder="Ex: Méca Pro Services")
+            specialite = st.text_input("Spécialité*", placeholder="Ex: Maintenance mécanique lourde")
+            contact_nom = st.text_input("Nom du contact*", placeholder="Ex: Robert Chen")
+            contact_email = st.text_input("Email*", placeholder="Ex: r.chen@mecapro.fr")
+            contact_telephone = st.text_input("Téléphone*", placeholder="Ex: 04 56 78 90 12")
+            adresse = st.text_area("Adresse*", placeholder="Ex: 123 Rue de la Réparation, 59000 Lille")
             
-            # Métriques
-            col_a, col_b, col_c = st.columns(3)
+            col_a, col_b = st.columns(2)
             with col_a:
-                st.metric("Taux horaire", f"{soustraitant['taux_horaire']} €/h")
+                intervention_type = st.selectbox("Type d'intervention", ["Urgences 24/7", "Planifiée", "Spécialisée", "Générale"])
+                taux_horaire = st.number_input("Taux horaire (€)", min_value=0.0, value=85.0, step=5.0)
+                zone_intervention = st.text_input("Zone d'intervention", placeholder="Ex: Région Nord")
             
             with col_b:
-                st.metric("Zone d'intervention", soustraitant['zone_intervention'])
-            
-            with col_c:
-                assurance = "✅ Oui" if soustraitant['assurance_rc_pro'] else "❌ Non"
-                st.metric("Assurance RC Pro", assurance)
-            
-            # Informations de contact
-            with st.expander("📞 Informations de contact", expanded=False):
-                st.write(f"**Contact:** {soustraitant['contact_nom']}")
-                st.write(f"**Email:** {soustraitant['contact_email']}")
-                st.write(f"**Téléphone:** {soustraitant['contact_telephone']}")
-                st.write(f"**Adresse:** {soustraitant['adresse']}")
-                st.write(f"**Type intervention:** {soustraitant['intervention_type']}")
+                certifications = st.multiselect("Certifications", ["ISO 9001", "Qualibat", "MASE", "ISO 14001", "Autre"])
+                if "Autre" in certifications:
+                    autre_certif = st.text_input("Autre certification")
+                    if autre_certif:
+                        certifications.remove("Autre")
+                        certifications.append(autre_certif)
                 
-                if soustraitant['certifications']:
-                    st.write("**Certifications:**")
-                    for cert in soustraitant['certifications']:
-                        st.write(f"- {cert}")
+                date_debut = st.date_input("Date début contrat", datetime.date.today())
+                date_fin = st.date_input("Date fin contrat", datetime.date.today() + datetime.timedelta(days=365))
             
-            # Boutons d'action
-            col_btn1, col_btn2, col_btn3 = st.columns(3)
-            with col_btn1:
-                if st.button("🔧 Demander intervention", key=f"inter_{soustraitant['id']}"):
-                    st.session_state.selected_contractor = soustraitant['id']
-                    st.info(f"Demande d'intervention à {soustraitant['nom']}")
+            assurance_rc_pro = st.checkbox("Assurance RC Professionnelle", value=True)
+            montant_assurance = st.text_input("Montant assurance", value="5 000 000 €") if assurance_rc_pro else ""
             
-            with col_btn2:
-                if st.button("📋 Voir détails", key=f"cdetail_{soustraitant['id']}"):
-                    st.info(f"Détails de {soustraitant['nom']}")
+            notes = st.text_area("Notes", placeholder="Informations complémentaires...")
             
-            with col_btn3:
-                if st.button("📅 Planifier", key=f"plan_{soustraitant['id']}"):
-                    st.success(f"Planning ouvert pour {soustraitant['nom']}")
+            if st.form_submit_button("➕ Ajouter le sous-traitant", type="primary"):
+                if nom and specialite and contact_nom and contact_email and contact_telephone and adresse:
+                    soustraitant_data = {
+                        "id": max([s["id"] for s in data_manager.tiers["soustraitants"]], default=100) + 1,
+                        "nom": nom,
+                        "type": "soustraitant",
+                        "specialite": specialite,
+                        "contact_nom": contact_nom,
+                        "contact_email": contact_email,
+                        "contact_telephone": contact_telephone,
+                        "adresse": adresse,
+                        "intervention_type": intervention_type,
+                        "taux_horaire": taux_horaire,
+                        "zone_intervention": zone_intervention,
+                        "certifications": certifications,
+                        "contrat_actif": True,
+                        "date_debut_contrat": date_debut.isoformat(),
+                        "date_fin_contrat": date_fin.isoformat(),
+                        "assurance_rc_pro": assurance_rc_pro,
+                        "montant_assurance": montant_assurance if assurance_rc_pro else "",
+                        "notes": notes
+                    }
+                    
+                    data_manager.tiers["soustraitants"].append(soustraitant_data)
+                    data_manager.save_tiers()
+                    st.success(f"✅ Sous-traitant {nom} ajouté avec succès !")
+                    st.balloons()
+                else:
+                    st.error("Veuillez remplir tous les champs obligatoires (*)")
+    
+    with col2:
+        st.markdown("### Statistiques")
+        soustraitants = data_manager.get_soustraitants()
+        
+        if not soustraitants.empty:
+            st.metric("Nombre", len(soustraitants))
             
-            st.markdown("---")
+            # Calcul taux horaire moyen
+            taux_moyen = soustraitants["taux_horaire"].mean()
+            st.metric("Taux horaire moyen", f"{taux_moyen:.0f} €")
+            
+            # Sous-traitants avec assurance
+            avec_assurance = len(soustraitants[soustraitants["assurance_rc_pro"] == True])
+            st.metric("Avec assurance RC", f"{avec_assurance}/{len(soustraitants)}")
+        else:
+            st.info("Aucun sous-traitant")
 
 def show_admin():
     """Affiche la page administration"""
