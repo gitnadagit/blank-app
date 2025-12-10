@@ -632,104 +632,782 @@ def show_emprunts_management():
     else:
         st.info("Aucun emprunt en cours")
 
-# ========== PAGES SIMPLIFIÉES POUR LES AUTRES SECTIONS ==========
+# ========== GESTION DES INTERVENTIONS ==========
 def show_interventions():
-    """Affiche la page interventions"""
+    """Page principale des interventions"""
     st.title("🔧 Gestion des Interventions")
+    
+    # Onglets principaux
+    tab_corrective, tab_preventive = st.tabs(["🔴 Interventions Correctives", "🟢 Maintenance Préventive"])
+    
+    with tab_corrective:
+        show_corrective_interventions()
+    
+    with tab_preventive:
+        show_preventive_interventions()
+
+# ========== PARTIE CORRECTIVE ==========
+def show_corrective_interventions():
+    """Affiche la gestion des interventions correctives"""
+    st.subheader("🔴 Interventions Correctives")
+    
+    # Sous-onglets pour la partie corrective
+    tab1, tab2, tab3 = st.tabs(["📝 Demande d'Intervention", "📋 Bons de Travail", "📊 Suivi en cours"])
+    
+    with tab1:
+        show_demande_intervention()
+    
+    with tab2:
+        show_bons_travail_correctifs()
+    
+    with tab3:
+        show_suivi_correctif()
+
+def show_demande_intervention():
+    """Formulaire de demande d'intervention corrective"""
+    st.markdown("### 📝 Nouvelle Demande d'Intervention")
+    
+    with st.form("demande_intervention_form"):
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            # Information sur l'équipement
+            st.markdown("#### Information Équipement")
+            equipement_nom = st.text_input("Nom de l'équipement*", placeholder="Ex: Pompe centrifuge P-101")
+            reference_equipement = st.text_input("Référence équipement*", placeholder="Ex: EQUIP-023")
+            localisation = st.selectbox("Localisation*", ["Atelier A", "Atelier B", "Salle des machines", "Extérieur", "Autre"])
+            if localisation == "Autre":
+                localisation = st.text_input("Précisez la localisation")
+            
+            # Nature du problème
+            st.markdown("#### Nature du problème")
+            type_panne = st.selectbox("Type de panne*", 
+                ["Mécanique", "Électrique", "Hydraulique", "Pneumatique", "Électronique", "Automatisme", "Autre"])
+            criticite = st.select_slider("Criticité*", 
+                options=["Faible", "Moyenne", "Haute", "Critique"], 
+                value="Moyenne")
+        
+        with col2:
+            # Information demandeur
+            st.markdown("#### Information Demandeur")
+            demandeur = st.text_input("Nom du demandeur*", 
+                value=st.session_state.user.get("full_name", ""))
+            departement = st.selectbox("Département*", 
+                ["Production", "Maintenance", "Qualité", "Sécurité", "Autre"])
+            date_detection = st.date_input("Date de détection*", datetime.date.today())
+            heure_detection = st.time_input("Heure de détection*", datetime.datetime.now().time())
+            
+            # Description problème
+            st.markdown("#### Description")
+            symptomes = st.text_area("Symptômes observés*", 
+                placeholder="Décrivez ce qui ne fonctionne pas, les bruits anormaux, les voyants...")
+            impact_production = st.selectbox("Impact sur la production", 
+                ["Aucun", "Ralentissement", "Arrêt partiel", "Arrêt total"])
+        
+        # Actions déjà entreprises
+        actions_deja_prises = st.text_area("Actions déjà entreprises", 
+            placeholder="Décrivez les vérifications, réglages ou réparations déjà effectués")
+        
+        # Pièces jointes (simulées)
+        with st.expander("📎 Pièces jointes"):
+            st.caption("(Fonctionnalité de téléchargement en développement)")
+            photo = st.checkbox("Photo disponible")
+            video = st.checkbox("Vidéo disponible")
+            schema = st.checkbox("Schéma technique joint")
+        
+        submitted = st.form_submit_button("📤 Soumettre la demande", type="primary")
+        
+        if submitted:
+            if equipement_nom and reference_equipement and localisation and type_panne and demandeur:
+                demande_data = {
+                    "id": time.time_ns(),  # ID unique
+                    "equipement_nom": equipement_nom,
+                    "reference_equipement": reference_equipement,
+                    "localisation": localisation,
+                    "type_panne": type_panne,
+                    "criticite": criticite,
+                    "demandeur": demandeur,
+                    "departement": departement,
+                    "date_detection": date_detection.isoformat(),
+                    "heure_detection": heure_detection.isoformat(),
+                    "symptomes": symptomes,
+                    "impact_production": impact_production,
+                    "actions_deja_prises": actions_deja_prises,
+                    "statut": "🟡 En attente",
+                    "date_soumission": datetime.datetime.now().isoformat(),
+                    "priorite": self.calculer_priorite(criticite, impact_production)
+                }
+                
+                # Sauvegarde (simulée)
+                st.success(f"✅ Demande d'intervention pour {equipement_nom} soumise avec succès !")
+                st.info(f"Numéro de demande: DI-{demande_data['id']}")
+                
+                # Générer automatiquement un BT
+                if st.button("📄 Générer le Bon de Travail"):
+                    show_generer_bt(demande_data)
+            else:
+                st.error("Veuillez remplir tous les champs obligatoires (*)")
+
+def show_bons_travail_correctifs():
+    """Affiche la gestion des Bons de Travail correctifs"""
+    st.markdown("### 📋 Bons de Travail Correctifs")
+    
+    # Filtres
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        statut_filter = st.multiselect("Statut", 
+            ["🟡 En attente", "🔵 En cours", "🟢 Terminé", "🔴 Annulé"], 
+            default=["🟡 En attente", "🔵 En cours"])
+    
+    with col2:
+        priorite_filter = st.multiselect("Priorité", 
+            ["Basse", "Normale", "Haute", "Urgente"])
+    
+    with col3:
+        technicien_filter = st.multiselect("Technicien", 
+            ["Jean Dupont", "Marie Martin", "Paul Bernard", "Sophie Laurent"])
+    
+    # Bouton pour créer un nouveau BT
+    if st.button("➕ Créer un nouveau BT", type="primary"):
+        st.session_state.creating_bt = True
+    
+    if st.session_state.get("creating_bt", False):
+        show_creer_bt_correctif()
+    
+    # Liste des BTs (données simulées)
+    st.markdown("#### Liste des Bons de Travail")
+    
+    # Données de démo
+    bts_demo = [
+        {
+            "id": "BT-C-001",
+            "equipement": "Pompe centrifuge P-101",
+            "reference": "EQUIP-023",
+            "type": "Mécanique",
+            "technicien": "Jean Dupont",
+            "date_creation": "2024-11-25",
+            "date_debut": "2024-11-26",
+            "date_fin": "2024-11-26",
+            "statut": "🔵 En cours",
+            "priorite": "Haute",
+            "temps_estime": "4h",
+            "temps_reel": "3h30"
+        },
+        {
+            "id": "BT-C-002",
+            "equipement": "Convoyeur bande C-205",
+            "reference": "EQUIP-045",
+            "type": "Électrique",
+            "technicien": "Marie Martin",
+            "date_creation": "2024-11-24",
+            "date_debut": "2024-11-25",
+            "date_fin": "2024-11-25",
+            "statut": "🟢 Terminé",
+            "priorite": "Normale",
+            "temps_estime": "2h",
+            "temps_reel": "1h45"
+        }
+    ]
+    
+    for bt in bts_demo:
+        if statut_filter and bt["statut"] not in statut_filter:
+            continue
+        if priorite_filter and bt["priorite"] not in priorite_filter:
+            continue
+        if technicien_filter and bt["technicien"] not in technicien_filter:
+            continue
+        
+        with st.container():
+            col_a1, col_a2, col_a3 = st.columns([3, 2, 1])
+            with col_a1:
+                st.markdown(f"**{bt['id']} - {bt['equipement']}**")
+                st.caption(f"Type: {bt['type']} | Technicien: {bt['technicien']}")
+            
+            with col_a2:
+                st.write(f"Créé le: {bt['date_creation']}")
+                if bt['date_debut']:
+                    st.write(f"Début: {bt['date_debut']}")
+            
+            with col_a3:
+                color = "green" if bt["statut"] == "🟢 Terminé" else "blue" if bt["statut"] == "🔵 En cours" else "orange"
+                st.markdown(f'<span style="color: {color}; font-weight: bold;">{bt["statut"]}</span>', 
+                           unsafe_allow_html=True)
+            
+            # Actions
+            col_b1, col_b2, col_b3, col_b4 = st.columns(4)
+            with col_b1:
+                if st.button(f"👁️ Voir", key=f"view_{bt['id']}"):
+                    st.session_state.selected_bt = bt
+            with col_b2:
+                if bt["statut"] != "🟢 Terminé":
+                    if st.button(f"✏️ Modifier", key=f"edit_{bt['id']}"):
+                        st.info(f"Modification du BT {bt['id']}")
+            with col_b3:
+                if st.button(f"📄 PDF", key=f"pdf_{bt['id']}"):
+                    st.success(f"Génération PDF pour {bt['id']}")
+            with col_b4:
+                if st.button(f"📊 Rapport", key=f"report_{bt['id']}"):
+                    show_rapport_bt(bt)
+            
+            st.markdown("---")
+
+def show_suivi_correctif():
+    """Affiche le suivi des interventions correctives"""
+    st.markdown("### 📊 Suivi des Interventions Correctives")
     
     # Métriques
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        st.metric("Interventions totales", "156")
+        st.metric("En attente", "5")
     with col2:
-        st.metric("En cours", "24", "+3")
+        st.metric("En cours", "3")
     with col3:
-        st.metric("Urgentes", "8", "+2")
+        st.metric("Terminées (mois)", "24")
     with col4:
-        st.metric("À planifier", "12", "-1")
+        st.metric("Temps moyen", "2.3h")
     
-    # Onglets
-    tab1, tab2, tab3 = st.tabs(["📋 Liste", "➕ Nouvelle", "📊 Statistiques"])
+    # Graphiques
+    col_a, col_b = st.columns(2)
+    
+    with col_a:
+        st.markdown("#### Répartition par type")
+        types_data = pd.DataFrame({
+            'Type': ['Mécanique', 'Électrique', 'Hydraulique', 'Pneumatique'],
+            'Nombre': [12, 8, 5, 3]
+        })
+        st.bar_chart(types_data.set_index('Type'))
+    
+    with col_b:
+        st.markdown("#### Évolution mensuelle")
+        evolution_data = pd.DataFrame({
+            'Mois': ['Sep', 'Oct', 'Nov'],
+            'Interventions': [18, 22, 15]
+        })
+        st.line_chart(evolution_data.set_index('Mois'))
+
+# ========== PARTIE PRÉVENTIVE ==========
+def show_preventive_interventions():
+    """Affiche la gestion de la maintenance préventive"""
+    st.subheader("🟢 Maintenance Préventive")
+    
+    # Sous-onglets pour la partie préventive
+    tab1, tab2, tab3 = st.tabs(["📅 Planning", "📋 Bons Préventifs", "📈 Statistiques"])
     
     with tab1:
-        # Données exemple
-        interventions = pd.DataFrame({
-            "ID": ["INT-2024-001", "INT-2024-002", "INT-2024-003", "INT-2024-004"],
-            "Équipement": ["Presse hydraulique", "Tour CNC", "Four industriel", "Robot KUKA"],
-            "Description": ["Panne moteur principal", "Révision annuelle", "Changement résistances", "Calibration"],
-            "Technicien": ["Jean Dupont", "Marie Martin", "Paul Bernard", "Sophie Laurent"],
-            "Date début": ["2024-11-25", "2024-11-26", "2024-11-27", "2024-11-28"],
-            "Date fin": ["2024-11-26", "2024-11-26", "2024-11-28", "2024-11-29"],
-            "Statut": ["🔴 En cours", "🟢 Terminé", "🟡 À planifier", "🔴 En cours"],
-            "Priorité": ["Haute", "Basse", "Moyenne", "Haute"],
-            "Durée (h)": [8, 4, 12, 6]
-        })
-        
-        # Filtres
-        col_f1, col_f2, col_f3 = st.columns(3)
-        with col_f1:
-            statut_filter = st.multiselect("Statut", interventions["Statut"].unique(), default=["🔴 En cours"])
-        
-        with col_f2:
-            priorite_filter = st.multiselect("Priorité", interventions["Priorité"].unique())
-        
-        # Application filtres
-        if statut_filter:
-            interventions = interventions[interventions["Statut"].isin(statut_filter)]
-        if priorite_filter:
-            interventions = interventions[interventions["Priorité"].isin(priorite_filter)]
-        
-        st.dataframe(interventions, use_container_width=True)
-        
-        # Actions
-        col_a1, col_a2 = st.columns(2)
-        with col_a1:
-            if st.button("🔄 Actualiser", use_container_width=True):
-                st.rerun()
-        with col_a2:
-            csv = interventions.to_csv(index=False)
-            st.download_button("📥 Exporter CSV", data=csv, file_name="interventions.csv", mime="text/csv", use_container_width=True)
+        show_planning_preventif()
     
     with tab2:
-        st.subheader("Nouvelle intervention")
-        with st.form("new_intervention"):
-            col1, col2 = st.columns(2)
-            with col1:
-                equipement = st.selectbox("Équipement", ["Presse hydraulique", "Tour CNC", "Four industriel", "Robot KUKA", "Compresseur"])
-                type_inter = st.selectbox("Type", ["Maintenance préventive", "Réparation", "Révision", "Contrôle", "Installation"])
-                priorite = st.select_slider("Priorité", ["Basse", "Moyenne", "Haute"])
-            
-            with col2:
-                technicien = st.selectbox("Technicien", ["Jean Dupont", "Marie Martin", "Paul Bernard", "Sophie Laurent"])
-                date_debut = st.date_input("Date début", datetime.date.today())
-                duree = st.number_input("Durée estimée (h)", min_value=1, value=4)
-            
-            description = st.text_area("Description", height=100)
-            
-            if st.form_submit_button("✅ Créer l'intervention", type="primary"):
-                st.success("Intervention créée avec succès !")
-                st.balloons()
+        show_bons_preventifs()
     
     with tab3:
-        st.subheader("Statistiques")
-        
-        # Graphiques
-        col_g1, col_g2 = st.columns(2)
-        with col_g1:
-            st.metric("Taux de résolution", "94%")
-            st.metric("Durée moyenne", "5.2h")
-        
-        with col_g2:
-            st.metric("Coût moyen", "425€")
-            st.metric("Retards", "3%")
-        
-        # Répartition
-        stats_data = pd.DataFrame({
-            "Mois": ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun"],
-            "Interventions": [18, 22, 25, 28, 30, 32]
-        })
-        st.line_chart(stats_data.set_index("Mois"))
+        show_statistiques_preventives()
 
+def show_planning_preventif():
+    """Affiche le planning de maintenance préventive"""
+    st.markdown("### 📅 Planning de Maintenance Préventive")
+    
+    # Filtres
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        periode = st.selectbox("Période", 
+            ["Semaine en cours", "Mois en cours", "Trimestre", "Année"])
+    
+    with col2:
+        type_maintenance = st.multiselect("Type maintenance",
+            ["Hebdomadaire", "Mensuelle", "Trimestrielle", "Semestrielle", "Annuelle"])
+    
+    with col3:
+        etat = st.multiselect("État",
+            ["🟢 Planifié", "🟡 En cours", "🔵 Réalisé", "🔴 Reporté"])
+    
+    # Planning (données de démo)
+    st.markdown("#### Calendrier des interventions")
+    
+    planning_data = [
+        {
+            "equipement": "Pompe centrifuge P-101",
+            "type": "Mensuelle",
+            "date_prevue": "2024-12-02",
+            "technicien": "Jean Dupont",
+            "duree_estimee": "2h",
+            "etat": "🟢 Planifié",
+            "derniere_realisation": "2024-11-02"
+        },
+        {
+            "equipement": "Convoyeur bande C-205",
+            "type": "Hebdomadaire",
+            "date_prevue": "2024-12-03",
+            "technicien": "Marie Martin",
+            "duree_estimee": "1h",
+            "etat": "🟢 Planifié",
+            "derniere_realisation": "2024-11-26"
+        },
+        {
+            "equipement": "Compresseur d'air COMP-01",
+            "type": "Trimestrielle",
+            "date_prevue": "2024-12-10",
+            "technicien": "Paul Bernard",
+            "duree_estimee": "4h",
+            "etat": "🟡 En cours",
+            "derniere_realisation": "2024-09-10"
+        }
+    ]
+    
+    for plan in planning_data:
+        if type_maintenance and plan["type"] not in type_maintenance:
+            continue
+        if etat and plan["etat"] not in etat:
+            continue
+        
+        with st.container():
+            col_a1, col_a2, col_a3 = st.columns([3, 2, 1])
+            with col_a1:
+                st.markdown(f"**{plan['equipement']}**")
+                st.caption(f"Type: {plan['type']} | Technicien: {plan['technicien']}")
+            
+            with col_a2:
+                st.write(f"Date prévue: {plan['date_prevue']}")
+                st.write(f"Durée: {plan['duree_estimee']}")
+            
+            with col_a3:
+                color = "green" if plan["etat"] == "🟢 Planifié" else "orange" if plan["etat"] == "🟡 En cours" else "blue"
+                st.markdown(f'<span style="color: {color}; font-weight: bold;">{plan["etat"]}</span>', 
+                           unsafe_allow_html=True)
+            
+            # Actions
+            col_b1, col_b2, col_b3 = st.columns(3)
+            with col_b1:
+                if plan["etat"] == "🟢 Planifié":
+                    if st.button(f"📄 Générer BT", key=f"gen_{plan['equipement']}"):
+                        show_generer_bt_preventif(plan)
+            with col_b2:
+                if st.button(f"🔄 Reporter", key=f"report_{plan['equipement']}"):
+                    st.warning(f"Report de l'intervention sur {plan['equipement']}")
+            with col_b3:
+                if st.button(f"📋 Historique", key=f"hist_{plan['equipement']}"):
+                    show_historique_preventif(plan)
+            
+            st.markdown("---")
+    
+    # Bouton pour planifier une nouvelle intervention
+    if st.button("➕ Planifier une nouvelle intervention", type="primary"):
+        show_planifier_intervention()
+
+def show_bons_preventifs():
+    """Affiche les Bons de Travail préventifs"""
+    st.markdown("### 📋 Bons de Travail Préventifs")
+    
+    # Filtres
+    col1, col2 = st.columns(2)
+    with col1:
+        periode_bt = st.selectbox("Période de réalisation",
+            ["Tous", "Semaine", "Mois", "Trimestre"])
+    
+    with col2:
+        statut_bt = st.multiselect("Statut du BT",
+            ["🟢 Planifié", "🟡 En cours", "🔵 Réalisé", "✅ Clôturé"])
+    
+    # Liste des BTs préventifs
+    bts_preventifs = [
+        {
+            "id": "BT-P-001",
+            "equipement": "Pompe centrifuge P-101",
+            "type": "Mensuelle",
+            "technicien": "Jean Dupont",
+            "date_planifiee": "2024-12-02",
+            "date_realisation": None,
+            "statut": "🟢 Planifié",
+            "checklist": ["Vérifier vibrations", "Contrôler température", "Graisser roulements"]
+        },
+        {
+            "id": "BT-P-002",
+            "equipement": "Convoyeur bande C-205",
+            "type": "Hebdomadaire",
+            "technicien": "Marie Martin",
+            "date_planifiee": "2024-12-03",
+            "date_realisation": None,
+            "statut": "🟢 Planifié",
+            "checklist": ["Vérifier tension courroie", "Nettoyer rouleaux", "Contrôler alignement"]
+        }
+    ]
+    
+    for bt in bts_preventifs:
+        with st.container():
+            col_a1, col_a2 = st.columns([3, 1])
+            with col_a1:
+                st.markdown(f"**{bt['id']} - {bt['equipement']}**")
+                st.caption(f"Type: {bt['type']} | Technicien: {bt['technicien']}")
+                st.write(f"Date planifiée: {bt['date_planifiee']}")
+            
+            with col_a2:
+                st.markdown(f"**{bt['statut']}**")
+            
+            # Checklist
+            with st.expander("📋 Checklist de maintenance"):
+                for item in bt['checklist']:
+                    st.checkbox(item, key=f"{bt['id']}_{item}")
+            
+            # Actions
+            col_b1, col_b2, col_b3 = st.columns(3)
+            with col_b1:
+                if bt["statut"] == "🟢 Planifié":
+                    if st.button(f"▶️ Démarrer", key=f"start_{bt['id']}"):
+                        st.session_state.bt_en_cours = bt
+                        st.success(f"BT {bt['id']} démarré")
+            with col_b2:
+                if st.button(f"📝 Remplir BT", key=f"fill_{bt['id']}"):
+                    show_remplir_bt_preventif(bt)
+            with col_b3:
+                if st.button(f"📊 Consulter", key=f"consult_{bt['id']}"):
+                    show_details_bt_preventif(bt)
+            
+            st.markdown("---")
+
+# ========== FONCTIONS AUXILIAIRES ==========
+def calculer_priorite(criticite, impact_production):
+    """Calcule la priorité en fonction de la criticité et de l'impact"""
+    if criticite == "Critique" or impact_production == "Arrêt total":
+        return "Urgente"
+    elif criticite == "Haute" or impact_production == "Arrêt partiel":
+        return "Haute"
+    elif criticite == "Moyenne" or impact_production == "Ralentissement":
+        return "Normale"
+    else:
+        return "Basse"
+
+def show_generer_bt(demande_data):
+    """Affiche le formulaire pour générer un Bon de Travail"""
+    st.markdown("### 📄 Génération du Bon de Travail")
+    
+    with st.form("generer_bt_form"):
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### Informations BT")
+            bt_numero = st.text_input("Numéro BT", f"BT-C-{int(time.time())}")
+            technicien_assign = st.selectbox("Technicien assigné*",
+                ["Jean Dupont", "Marie Martin", "Paul Bernard", "Sophie Laurent", "À affecter"])
+            date_intervention = st.date_input("Date prévue d'intervention*", datetime.date.today())
+            temps_estime = st.selectbox("Temps estimé*", ["1h", "2h", "4h", "8h", "1 jour", "Plus"])
+        
+        with col2:
+            st.markdown("#### Ressources nécessaires")
+            outillages = st.multiselect("Outillages nécessaires",
+                ["Clé à choc", "Multimètre", "Scie sauteuse", "Perceuse", "Autre"])
+            pieces_detachees = st.text_area("Pièces détachées",
+                placeholder="Listez les pièces nécessaires...")
+            risques = st.multiselect("Risques identifiés",
+                ["Électrique", "Hauteur", "Manutention", "Chimique", "Bruit", "Autre"])
+        
+        # Description des travaux
+        st.markdown("#### Description des travaux")
+        travaux_a_effectuer = st.text_area("Travaux à effectuer*",
+            placeholder="Décrivez en détail les travaux à réaliser...",
+            height=100)
+        
+        # Procédures de sécurité
+        with st.expander("⚠️ Procédures de sécurité"):
+            epi_necessaires = st.multiselect("ÉPI nécessaires",
+                ["Casque", "Lunettes", "Gants", "Chaussures de sécurité", "Harnais", "Masque"])
+            consignes_securite = st.text_area("Consignes de sécurité spécifiques")
+            verif_debranche = st.checkbox("Vérification débranchement électrique")
+            verif_isolement = st.checkbox("Vérification isolement zone de travail")
+        
+        submitted = st.form_submit_button("✅ Générer le Bon de Travail", type="primary")
+        
+        if submitted:
+            if technicien_assign and travaux_a_effectuer:
+                bt_data = {
+                    **demande_data,
+                    "bt_numero": bt_numero,
+                    "technicien": technicien_assign,
+                    "date_intervention": date_intervention.isoformat(),
+                    "temps_estime": temps_estime,
+                    "outillages": outillages,
+                    "pieces_detachees": pieces_detachees,
+                    "risques": risques,
+                    "travaux_a_effectuer": travaux_a_effectuer,
+                    "epi_necessaires": epi_necessaires,
+                    "consignes_securite": consignes_securite,
+                    "statut_bt": "🟡 En attente"
+                }
+                
+                st.success(f"✅ Bon de Travail {bt_numero} généré avec succès !")
+                st.balloons()
+                
+                # Option de téléchargement (simulé)
+                if st.button("📄 Télécharger le BT au format PDF"):
+                    st.info("Fonctionnalité PDF en développement")
+            else:
+                st.error("Veuillez remplir tous les champs obligatoires")
+
+def show_creer_bt_correctif():
+    """Affiche le formulaire pour créer un BT correctif manuellement"""
+    st.markdown("### ➕ Création manuelle d'un Bon de Travail")
+    
+    with st.form("creer_bt_manuel_form"):
+        st.markdown("#### Information Équipement")
+        col1, col2 = st.columns(2)
+        with col1:
+            equipement = st.text_input("Équipement*", placeholder="Nom de l'équipement")
+            reference = st.text_input("Référence")
+            localisation = st.text_input("Localisation*")
+        
+        with col2:
+            type_intervention = st.selectbox("Type d'intervention*",
+                ["Réparation", "Remplacement", "Réglage", "Diagnostic"])
+            priorite = st.selectbox("Priorité*",
+                ["Basse", "Normale", "Haute", "Urgente"])
+        
+        st.markdown("#### Description du problème")
+        description = st.text_area("Description*", height=100,
+            placeholder="Décrivez le problème...")
+        
+        st.markdown("#### Affectation")
+        col3, col4 = st.columns(2)
+        with col3:
+            technicien = st.selectbox("Technicien responsable*",
+                ["Jean Dupont", "Marie Martin", "Paul Bernard", "Sophie Laurent"])
+            date_planifiee = st.date_input("Date planifiée*", datetime.date.today())
+        
+        with col4:
+            temps_estime = st.number_input("Temps estimé (heures)*", 0.5, 24.0, 2.0, 0.5)
+        
+        submitted = st.form_submit_button("📝 Créer le BT", type="primary")
+        
+        if submitted:
+            if equipement and localisation and description and technicien:
+                st.success(f"✅ BT créé pour {equipement}")
+                st.session_state.creating_bt = False
+                st.rerun()
+            else:
+                st.error("Veuillez remplir tous les champs obligatoires")
+
+def show_rapport_bt(bt_data):
+    """Affiche un rapport détaillé pour un BT"""
+    st.markdown(f"### 📊 Rapport détaillé - {bt_data['id']}")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("#### Informations générales")
+        st.write(f"**Équipement:** {bt_data['equipement']}")
+        st.write(f"**Référence:** {bt_data['reference']}")
+        st.write(f"**Technicien:** {bt_data['technicien']}")
+        st.write(f"**Date création:** {bt_data['date_creation']}")
+        st.write(f"**Priorité:** {bt_data['priorite']}")
+    
+    with col2:
+        st.markdown("#### Chronologie")
+        st.write(f"**Date début:** {bt_data['date_debut']}")
+        st.write(f"**Date fin:** {bt_data['date_fin']}")
+        st.write(f"**Temps estimé:** {bt_data['temps_estime']}")
+        st.write(f"**Temps réel:** {bt_data['temps_reel']}")
+        st.write(f"**Statut:** {bt_data['statut']}")
+    
+    # Section commentaires
+    st.markdown("#### Commentaires et observations")
+    commentaires = st.text_area("Ajouter des commentaires", 
+        placeholder="Notez ici vos observations...")
+    
+    if st.button("💾 Enregistrer le rapport"):
+        st.success("Rapport enregistré avec succès")
+
+def show_generer_bt_preventif(plan_data):
+    """Génère un BT préventif à partir du planning"""
+    st.markdown(f"### 📄 Génération BT Préventif - {plan_data['equipement']}")
+    
+    with st.form("bt_preventif_form"):
+        st.markdown("#### Checklist de maintenance")
+        
+        # Checklist générique selon le type
+        checklist_items = []
+        if plan_data['type'] == "Mensuelle":
+            checklist_items = [
+                "Vérifier les niveaux de fluide",
+                "Contrôler les températures de fonctionnement",
+                "Inspecter les joints et étanchéités",
+                "Nettoyer les filtres",
+                "Graisser les points de lubrification"
+            ]
+        elif plan_data['type'] == "Hebdomadaire":
+            checklist_items = [
+                "Vérifier les bruits anormaux",
+                "Contrôler les vibrations",
+                "Nettoyer les surfaces",
+                "Vérifier les serrages"
+            ]
+        
+        for item in checklist_items:
+            st.checkbox(item, key=f"check_{hash(item)}")
+        
+        # Mesures à prendre
+        st.markdown("#### Mesures à enregistrer")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            temperature = st.number_input("Température (°C)", value=25.0)
+        with col2:
+            pression = st.number_input("Pression (bar)", value=1.0)
+        with col3:
+            vibration = st.number_input("Vibration (mm/s)", value=0.5)
+        
+        # Observations
+        observations = st.text_area("Observations", 
+            placeholder="Notez ici toute observation particulière...")
+        
+        if st.form_submit_button("✅ Générer le BT Préventif", type="primary"):
+            st.success(f"BT préventif généré pour {plan_data['equipement']}")
+            st.info("Le BT a été ajouté à la liste des Bons Préventifs")
+
+def show_remplir_bt_preventif(bt_data):
+    """Formulaire pour remplir un BT préventif"""
+    st.markdown(f"### 📝 Remplissage du BT Préventif - {bt_data['id']}")
+    
+    with st.form("remplir_bt_preventif_form"):
+        # Checklist
+        st.markdown("#### Checklist - Cocher les éléments réalisés")
+        for item in bt_data.get('checklist', []):
+            st.checkbox(item, key=f"done_{hash(item)}")
+        
+        # Mesures réalisées
+        st.markdown("#### Mesures réalisées")
+        col1, col2 = st.columns(2)
+        with col1:
+            date_realisation = st.date_input("Date de réalisation", datetime.date.today())
+            heure_debut = st.time_input("Heure de début", datetime.time(9, 0))
+        with col2:
+            heure_fin = st.time_input("Heure de fin", datetime.time(11, 0))
+            temps_passe = st.number_input("Temps total passé (heures)", 0.5, 8.0, 2.0, 0.5)
+        
+        # Anomalies constatées
+        st.markdown("#### Anomalies constatées")
+        anomalies = st.text_area("Décrivez les anomalies constatées", 
+            placeholder="Si aucune anomalie, laisser vide...")
+        
+        # Actions correctives
+        if anomalies:
+            actions_correctives = st.text_area("Actions correctives proposées")
+        
+        # Consommables utilisés
+        consommables = st.text_area("Consommables utilisés", 
+            placeholder "Graisse, joints, filtres, etc.")
+        
+        # Signature
+        signature = st.text_input("Nom et signature du technicien",
+            value=bt_data.get('technicien', ''))
+        
+        submitted = st.form_submit_button("✅ Clôturer le BT", type="primary")
+        
+        if submitted:
+            st.success(f"BT {bt_data['id']} clôturé avec succès !")
+            st.balloons()
+
+def show_details_bt_preventif(bt_data):
+    """Affiche les détails d'un BT préventif"""
+    st.markdown(f"### 📋 Détails du BT Préventif - {bt_data['id']}")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("#### Informations")
+        st.write(f"**Équipement:** {bt_data['equipement']}")
+        st.write(f"**Type de maintenance:** {bt_data['type']}")
+        st.write(f"**Technicien:** {bt_data['technicien']}")
+        st.write(f"**Date planifiée:** {bt_data['date_planifiee']}")
+    
+    with col2:
+        st.markdown("#### Checklist")
+        for item in bt_data.get('checklist', []):
+            st.write(f"✓ {item}")
+    
+    st.markdown("#### Historique des interventions")
+    # Tableau d'historique simulé
+    historique = pd.DataFrame({
+        'Date': ['2024-11-02', '2024-10-02', '2024-09-02'],
+        'Technicien': ['Jean Dupont', 'Jean Dupont', 'Paul Bernard'],
+        'Statut': ['Réalisé', 'Réalisé', 'Réalisé'],
+        'Commentaire': ['OK', 'Roulements à surveiller', 'OK']
+    })
+    st.dataframe(historique, use_container_width=True)
+
+def show_planifier_intervention():
+    """Formulaire pour planifier une nouvelle intervention préventive"""
+    st.markdown("### ➕ Planifier une nouvelle intervention préventive")
+    
+    with st.form("planifier_intervention_form"):
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            equipement = st.text_input("Équipement*", placeholder="Nom de l'équipement")
+            reference = st.text_input("Référence équipement")
+            type_maintenance = st.selectbox("Type de maintenance*",
+                ["Hebdomadaire", "Mensuelle", "Trimestrielle", "Semestrielle", "Annuelle"])
+        
+        with col2:
+            frequence = st.number_input("Fréquence (jours)*", 7, 365, 30, 7)
+            date_premiere = st.date_input("Date première intervention*", datetime.date.today())
+            technicien = st.selectbox("Technicien responsable",
+                ["Jean Dupont", "Marie Martin", "Paul Bernard", "Sophie Laurent", "Rotation"])
+        
+        # Description des tâches
+        description_taches = st.text_area("Tâches à réaliser*", height=100,
+            placeholder="Décrivez les tâches de maintenance préventive...")
+        
+        # Documents associés
+        with st.expander("📎 Documents de référence"):
+            st.file_uploader("Procédure de maintenance", type=['pdf', 'docx'])
+            st.text_input("Référence du manuel")
+        
+        submitted = st.form_submit_button("📅 Planifier l'intervention", type="primary")
+        
+        if submitted:
+            if equipement and type_maintenance and description_taches:
+                st.success(f"Intervention planifiée pour {equipement}")
+                st.info(f"Prochaine intervention: {date_premiere}")
+            else:
+                st.error("Veuillez remplir tous les champs obligatoires")
+
+def show_statistiques_preventives():
+    """Affiche les statistiques de maintenance préventive"""
+    st.markdown("### 📈 Statistiques de Maintenance Préventive")
+    
+    # Métriques
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("BT planifiés", "18")
+    with col2:
+        st.metric("BT réalisés", "15")
+    with col3:
+        st.metric("Taux réalisation", "83%")
+    with col4:
+        st.metric "Économies estimées", "45k€"
+    
+    # Graphiques
+    col_a, col_b = st.columns(2)
+    
+    with col_a:
+        st.markdown("#### Répartition par type")
+        types_data = pd.DataFrame({
+            'Type': ['Mensuelle', 'Hebdomadaire', 'Trimestrielle', 'Annuelle'],
+            'Nombre': [8, 5, 3, 2]
+        })
+        st.bar_chart(types_data.set_index('Type'))
+    
+    with col_b:
+        st.markdown("#### Taux de réalisation")
+        taux_data = pd.DataFrame({
+            'Mois': ['Sep', 'Oct', 'Nov'],
+            'Taux': [85, 90, 83]
+        })
+        st.line_chart(taux_data.set_index('Mois'))
+    
+    # Tableau des retards
+    st.markdown("#### Interventions en retard")
+    retards = pd.DataFrame({
+        'Équipement': ['Compresseur COMP-01', 'Pompe P-203', 'Ventilateur V-045'],
+        'Type': 'Trimestrielle',
+        'Date prévue': ['2024-11-15', '2024-11-20', '2024-11-25'],
+        'Jours retard': [15, 10, 5]
+    })
+    st.dataframe(retards, use_container_width=True)
 def show_equipements():
     """Affiche la page équipements"""
     st.title("🏭 Parc d'Équipements")
