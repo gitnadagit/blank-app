@@ -2677,8 +2677,9 @@ def show_main_app():
         # Menu
         st.markdown("### 📋 Navigation")
         
-          menu_options = ["🏠 Tableau de bord", "🔧 Interventions", "🏭 Équipements", 
-                       "📦 Stocks", "🛠️ Outillages", "👥 Personnels", "🤝 Tiers"]  # Ajout de "👥 Personnels"
+        # CORRECTION DE L'INDENTATION ICI :
+        menu_options = ["🏠 Tableau de bord", "🔧 Interventions", "🏭 Équipements", 
+                       "📦 Stocks", "🛠️ Outillages", "👥 Personnels", "🤝 Tiers"]
         
         if user["role"] == "admin":
             menu_options.append("⚙️ Administration")
@@ -2686,9 +2687,14 @@ def show_main_app():
         selected_menu = st.radio("Menu", menu_options, label_visibility="collapsed")
         st.session_state.selected_menu = selected_menu
         
-        # ... (code existant) ...
+        st.markdown("---")
+        
+        if st.button("🚪 Déconnexion", type="secondary", use_container_width=True):
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.rerun()
     
-    # Contenu - MODIFIER CETTE PARTIE
+    # Contenu
     menu = st.session_state.get('selected_menu', '🏠 Tableau de bord')
     
     if menu == "🏠 Tableau de bord":
@@ -2701,8 +2707,8 @@ def show_main_app():
         show_stocks()
     elif menu == "🛠️ Outillages":
         show_outillages_management()
-    elif menu == "👥 Personnels":  # AJOUTER CETTE LIGNE
-        show_personnels_management()  # AJOUTER CETTE LIGNE
+    elif menu == "👥 Personnels":
+        show_personnels_management()
     elif menu == "🤝 Tiers":
         show_tiers_management()
     elif menu == "⚙️ Administration" and user["role"] == "admin":
