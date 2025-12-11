@@ -677,6 +677,9 @@ def show_demande_intervention():
     """Formulaire de demande d'intervention corrective"""
     st.markdown("### 📝 Nouvelle Demande d'Intervention")
     
+    demande_soumise = False
+    demande_data = None
+    
     with st.form("demande_intervention_form"):
         col1, col2 = st.columns(2)
         
@@ -748,15 +751,33 @@ def show_demande_intervention():
                     "priorite": calculer_priorite(criticite, impact_production)
                 }
                 
-                # Sauvegarde (simulée)
+                demande_soumise = True
+                st.session_state.last_demande = demande_data
+                
                 st.success(f"✅ Demande d'intervention pour {equipement_nom} soumise avec succès !")
                 st.info(f"Numéro de demande: DI-{demande_data['id']}")
-                
-                # Générer automatiquement un BT
-                if st.button("📄 Générer le Bon de Travail"):
-                    show_generer_bt(demande_data)
             else:
                 st.error("Veuillez remplir tous les champs obligatoires (*)")
+    
+    # Bouton pour générer le BT - EN DEHORS du formulaire
+    if demande_soumise:
+        st.markdown("---")
+        col_btn1, col_btn2 = st.columns(2)
+        
+        with col_btn1:
+            if st.button("📄 Générer le Bon de Travail", type="primary"):
+                if demande_data:
+                    show_generer_bt(demande_data)
+                elif 'last_demande' in st.session_state:
+                    show_generer_bt(st.session_state.last_demande)
+        
+        with col_btn2:
+            if st.button("📋 Voir toutes les demandes"):
+                st.session_state.show_demandes_list = True
+    
+    # Afficher la liste des demandes si demandé
+    if st.session_state.get('show_demandes_list', False):
+        show_liste_demandes()
 
 def show_bons_travail_correctifs():
     """Affiche la gestion des Bons de Travail correctifs"""
