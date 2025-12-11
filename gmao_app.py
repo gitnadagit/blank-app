@@ -633,6 +633,16 @@ def show_emprunts_management():
         st.info("Aucun emprunt en cours")
 
 # ========== GESTION DES INTERVENTIONS ==========
+def calculer_priorite(criticite, impact_production):
+    """Calcule la priorité en fonction de la criticité et de l'impact"""
+    if criticite == "Critique" or impact_production == "Arrêt total":
+        return "Urgente"
+    elif criticite == "Haute" or impact_production == "Arrêt partiel":
+        return "Haute"
+    elif criticite == "Moyenne" or impact_production == "Ralentissement":
+        return "Normale"
+    else:
+        return "Basse"
 def show_interventions():
     """Page principale des interventions"""
     st.title("🔧 Gestion des Interventions")
@@ -735,7 +745,7 @@ def show_demande_intervention():
                     "actions_deja_prises": actions_deja_prises,
                     "statut": "🟡 En attente",
                     "date_soumission": datetime.datetime.now().isoformat(),
-                    "priorite": self.calculer_priorite(criticite, impact_production)
+                    "priorite": calculer_priorite(criticite, impact_production)
                 }
                 
                 # Sauvegarde (simulée)
