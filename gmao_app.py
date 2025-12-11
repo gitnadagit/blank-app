@@ -1996,6 +1996,11 @@ def show_personnels_management():
     """Page de gestion des personnels"""
     st.title("👥 Gestion des Personnels")
     
+    # Vérifier si on est en mode édition
+    if 'editing_personnel' in st.session_state and st.session_state.editing_personnel:
+        show_modifier_technicien(st.session_state.editing_personnel)
+        return
+    
     # Onglets principaux
     tab1, tab2, tab3, tab4 = st.tabs(["📋 Liste du Personnel", "➕ Ajouter un Technicien", "🎓 Habilitations", "📊 Statistiques"])
     
@@ -2010,99 +2015,32 @@ def show_personnels_management():
     
     with tab4:
         show_statistiques_personnel()
-
 def show_liste_personnel():
     """Affiche la liste du personnel"""
     st.subheader("📋 Liste des Techniciens et Opérateurs")
     
-    # Données de démonstration
-    personnels = [
-        {
-            "id": 1,
-            "nom": "Jean Dupont",
-            "matricule": "TECH-001",
-            "poste": "Technicien Senior",
-            "service": "Maintenance Mécanique",
-            "cout_horaire": 45.50,
-            "statut": "🟢 Actif",
-            "experience": "8 ans",
-            "competences": ["Soudage", "Usinage", "Diagnostic"],
-            "habilitations": ["Électricien H0V", "Chariot élévateur", "Travaux en hauteur"],
-            "date_embauche": "2016-03-15",
-            "derniere_evaluation": "2024-10-15",
-            "notes": "Très bon technicien, autonome"
-        },
-        {
-            "id": 2,
-            "nom": "Marie Martin",
-            "matricule": "TECH-002",
-            "poste": "Technicienne Électricité",
-            "service": "Maintenance Électrique",
-            "cout_horaire": 42.00,
-            "statut": "🟢 Actif",
-            "experience": "6 ans",
-            "competences": ["Automatisme", "PLC", "Schémas électriques"],
-            "habilitations": ["Électricien B2V", "Habilitation H0-H0V", "Nacelle"],
-            "date_embauche": "2018-05-22",
-            "derniere_evaluation": "2024-09-20",
-            "notes": "Spécialiste automates"
-        },
-        {
-            "id": 3,
-            "nom": "Paul Bernard",
-            "matricule": "TECH-003",
-            "poste": "Technicien Polyvalent",
-            "service": "Maintenance Générale",
-            "cout_horaire": 38.00,
-            "statut": "🟡 Congés",
-            "experience": "4 ans",
-            "competences": ["Hydraulique", "Pneumatique", "Mécanique générale"],
-            "habilitations": ["Chariot élévateur", "SST", "Permis nacelle"],
-            "date_embauche": "2020-08-10",
-            "derniere_evaluation": "2024-08-05",
-            "notes": "En formation automatisme"
-        },
-        {
-            "id": 4,
-            "nom": "Sophie Laurent",
-            "matricule": "TECH-004",
-            "poste": "Apprentie Technicienne",
-            "service": "Maintenance Préventive",
-            "cout_horaire": 25.00,
-            "statut": "🟢 Actif",
-            "experience": "2 ans",
-            "competences": ["Contrôles", "Mesures", "Documentation"],
-            "habilitations": ["SST", "Habilitation BS"],
-            "date_embauche": "2022-09-01",
-            "derniere_evaluation": "2024-11-10",
-            "notes": "En alternance, très motivée"
-        },
-        {
-            "id": 5,
-            "nom": "Marc Dubois",
-            "matricule": "TECH-005",
-            "poste": "Chef d'Équipe",
-            "service": "Maintenance",
-            "cout_horaire": 55.00,
-            "statut": "🟢 Actif",
-            "experience": "12 ans",
-            "competences": ["Management", "Planification", "Gestion de projets"],
-            "habilitations": ["Toutes habilitations", "Formateur SST", "Chargé de sécurité"],
-            "date_embauche": "2012-11-05",
-            "derniere_evaluation": "2024-07-30",
-            "notes": "Responsable équipe maintenance"
-        }
-    ]
+    # Initialiser si nécessaire
+    if 'personnels' not in st.session_state:
+        show_ajouter_technicien()  # Initialiser avec les données par défaut
+        return
+    
+    personnels = st.session_state.personnels
+    
+    if not personnels:
+        st.info("Aucun personnel enregistré. Ajoutez votre premier technicien !")
+        if st.button("➕ Ajouter le premier technicien"):
+            st.session_state.show_ajouter_form = True
+        return
     
     # Filtres
     col1, col2, col3 = st.columns(3)
     with col1:
-        service_filter = st.multiselect("Service", 
-            sorted(list(set([p["service"] for p in personnels]))))
+        services = sorted(list(set([p.get("service", "Non spécifié") for p in personnels])))
+        service_filter = st.multiselect("Service", services)
     
     with col2:
-        statut_filter = st.multiselect("Statut", 
-            ["🟢 Actif", "🟡 Congés", "🔴 Absent", "🟣 Formation"])
+        statuts = sorted(list(set([p.get("statut", "Non spécifié") for p in personnels])))
+        statut_filter = st.multiselect("Statut", statuts)
     
     with col3:
         search_term = st.text_input("Rechercher par nom/matricule")
@@ -2111,17 +2049,20 @@ def show_liste_personnel():
     filtered_personnels = personnels.copy()
     
     if service_filter:
-        filtered_personnels = [p for p in filtered_personnels if p["service"] in service_filter]
+        filtered_personnels = [p for p in filtered_personnels if p.get("service") in service_filter]
     
     if statut_filter:
-        filtered_personnels = [p for p in filtered_personnels if p["statut"] in statut_filter]
+        filtered_personnels = [p for p in filtered_personnels if p.get("statut") in statut_filter]
     
     if search_term:
         search_term = search_term.lower()
         filtered_personnels = [
             p for p in filtered_personnels 
-            if search_term in p["nom"].lower() or search_term in p["matricule"].lower()
+            if search_term in p.get("nom", "").lower() or search_term in p.get("matricule", "").lower()
         ]
+    
+    # Métriques
+    st.markdown(f"**Total:** {len(personnels)} techniciens | **Filtrés:** {len(filtered_personnels)}")
     
     # Affichage
     if not filtered_personnels:
@@ -2132,50 +2073,83 @@ def show_liste_personnel():
         with st.container():
             col_a1, col_a2, col_a3 = st.columns([3, 2, 1])
             with col_a1:
-                st.markdown(f"### {personnel['nom']}")
-                st.markdown(f"**{personnel['poste']}** | *{personnel['service']}*")
-                st.caption(f"Matricule: {personnel['matricule']} | Expérience: {personnel['experience']}")
+                st.markdown(f"### {personnel.get('nom', 'Non nommé')}")
+                st.markdown(f"**{personnel.get('poste', 'Non spécifié')}** | *{personnel.get('service', 'Non spécifié')}*")
+                st.caption(f"Matricule: {personnel.get('matricule', 'N/A')} | Expérience: {personnel.get('experience', 'N/A')}")
             
             with col_a2:
-                st.metric("Coût horaire", f"{personnel['cout_horaire']} €")
-                st.write(f"**Embauché le:** {personnel['date_embauche']}")
+                st.metric("Coût horaire", f"{personnel.get('cout_horaire', 0)} €")
+                if personnel.get('date_embauche'):
+                    st.write(f"**Embauché le:** {personnel['date_embauche'][:10]}")
             
             with col_a3:
-                color = "green" if "Actif" in personnel["statut"] else "orange" if "Congés" in personnel["statut"] else "red"
-                st.markdown(f'<span style="color: {color}; font-weight: bold; font-size: 18px;">{personnel["statut"]}</span>', 
+                statut = personnel.get('statut', 'Non spécifié')
+                if "Actif" in statut:
+                    color = "green"
+                elif "Congés" in statut:
+                    color = "orange"
+                elif "Formation" in statut:
+                    color = "purple"
+                else:
+                    color = "red"
+                st.markdown(f'<span style="color: {color}; font-weight: bold; font-size: 18px;">{statut}</span>', 
                            unsafe_allow_html=True)
             
             # Compétences et habilitations
             col_b1, col_b2 = st.columns(2)
             with col_b1:
-                with st.expander("🔧 Compétences principales"):
-                    for comp in personnel["competences"]:
-                        st.markdown(f"• {comp}")
+                if personnel.get('competences'):
+                    with st.expander("🔧 Compétences principales"):
+                        for comp in personnel['competences'][:5]:  # Limiter à 5 pour l'affichage
+                            st.markdown(f"• {comp}")
+                        if len(personnel['competences']) > 5:
+                            st.caption(f"+ {len(personnel['competences']) - 5} autres...")
             
             with col_b2:
-                with st.expander("🎓 Habilitations"):
-                    for hab in personnel["habilitations"]:
-                        st.markdown(f"✓ {hab}")
+                if personnel.get('habilitations'):
+                    with st.expander("🎓 Habilitations"):
+                        for hab in personnel['habilitations'][:5]:  # Limiter à 5 pour l'affichage
+                            st.markdown(f"✓ {hab}")
+                        if len(personnel['habilitations']) > 5:
+                            st.caption(f"+ {len(personnel['habilitations']) - 5} autres...")
             
             # Notes
             if personnel.get("notes"):
-                st.info(f"**Notes:** {personnel['notes']}")
+                st.info(f"**Notes:** {personnel['notes'][:100]}...")
             
             # Actions
             col_c1, col_c2, col_c3, col_c4 = st.columns(4)
             with col_c1:
-                if st.button(f"📝 Modifier", key=f"edit_{personnel['id']}"):
+                 if st.button(f"✏️ Modifier", key=f"edit_{personnel['id']}"):
                     st.session_state.editing_personnel = personnel
+                 st.rerun()
+            
             with col_c2:
                 if st.button(f"📅 Planning", key=f"planning_{personnel['id']}"):
                     show_planning_technicien(personnel)
+            
             with col_c3:
                 if st.button(f"📊 Performance", key=f"perf_{personnel['id']}"):
                     show_performance_technicien(personnel)
+            
             with col_c4:
                 if st.button(f"🗑️ Supprimer", key=f"delete_{personnel['id']}"):
-                    if st.button(f"Confirmer suppression", key=f"confirm_del_{personnel['id']}"):
-                        st.warning(f"Suppression de {personnel['nom']} - Fonctionnalité en développement")
+                    # Confirmation
+                    with st.popover("⚠️ Confirmer la suppression"):
+                        st.warning(f"Êtes-vous sûr de vouloir supprimer {personnel['nom']} ?")
+                        col_conf1, col_conf2 = st.columns(2)
+                        with col_conf1:
+                            if st.button(f"✅ Oui, supprimer", key=f"confirm_yes_{personnel['id']}"):
+                                # Supprimer de la liste
+                                st.session_state.personnels = [
+                                    p for p in st.session_state.personnels 
+                                    if p['id'] != personnel['id']
+                                ]
+                                st.success(f"Technicien {personnel['nom']} supprimé avec succès")
+                                st.rerun()
+                        with col_conf2:
+                            if st.button(f"❌ Annuler", key=f"confirm_no_{personnel['id']}"):
+                                st.rerun()
             
             st.markdown("---")
 
@@ -2290,6 +2264,305 @@ def show_ajouter_technicien():
                 st.rerun()
             else:
                 st.error("Veuillez remplir tous les champs obligatoires (*)")
+
+def show_modifier_technicien(personnel):
+    """Affiche le formulaire pour modifier un technicien existant"""
+    st.subheader(f"✏️ Modifier le Technicien: {personnel.get('nom', '')}")
+    
+    # Bouton de retour
+    if st.button("↩️ Retour à la liste", key="back_from_edit"):
+        st.session_state.editing_personnel = None
+        st.rerun()
+    
+    st.markdown("---")
+    
+    with st.form("modify_technicien_form"):
+        st.markdown("### Informations personnelles")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            nom = st.text_input("Nom complet*", 
+                value=personnel.get('nom', ''), 
+                placeholder="Ex: Jean Dupont")
+            
+            matricule = st.text_input("Matricule*", 
+                value=personnel.get('matricule', ''), 
+                placeholder="Ex: TECH-006")
+            
+            # Date de naissance
+            date_naissance_default = datetime.date(1990, 1, 1)
+            if 'date_naissance' in personnel and personnel['date_naissance']:
+                try:
+                    if isinstance(personnel['date_naissance'], str):
+                        date_naissance_default = datetime.datetime.fromisoformat(
+                            personnel['date_naissance'].split('T')[0]
+                        ).date()
+                except:
+                    pass
+            date_naissance = st.date_input("Date de naissance", value=date_naissance_default)
+            
+            adresse = st.text_area("Adresse", 
+                value=personnel.get('adresse', ''), 
+                placeholder="Adresse complète...")
+        
+        with col2:
+            telephone = st.text_input("Téléphone*", 
+                value=personnel.get('telephone', ''), 
+                placeholder="Ex: 06 12 34 56 78")
+            
+            email = st.text_input("Email professionnel*", 
+                value=personnel.get('email', ''), 
+                placeholder="Ex: jean.dupont@entreprise.com")
+            
+            # Date d'embauche
+            date_embauche_default = datetime.date.today()
+            if 'date_embauche' in personnel and personnel['date_embauche']:
+                try:
+                    if isinstance(personnel['date_embauche'], str):
+                        date_embauche_default = datetime.datetime.fromisoformat(
+                            personnel['date_embauche'].split('T')[0]
+                        ).date()
+                except:
+                    pass
+            date_embauche = st.date_input("Date d'embauche*", value=date_embauche_default)
+            
+            # Type de contrat
+            type_contrat_options = ["CDI", "CDD", "Intérim", "Apprentissage", "Stage"]
+            type_contrat_index = type_contrat_options.index(
+                personnel.get('type_contrat', 'CDI')
+            ) if personnel.get('type_contrat') in type_contrat_options else 0
+            type_contrat = st.selectbox("Type de contrat*", type_contrat_options, index=type_contrat_index)
+        
+        st.markdown("### Informations professionnelles")
+        col3, col4 = st.columns(2)
+        
+        with col3:
+            # Poste
+            poste_options = ["Technicien Mécanicien", "Technicien Électricien", "Technicien Polyvalent",
+                           "Chef d'Équipe", "Apprenti", "Stagiaire", "Autre"]
+            poste_value = personnel.get('poste', 'Technicien Mécanicien')
+            if poste_value not in poste_options:
+                poste_options.append(poste_value)
+            poste_index = poste_options.index(poste_value)
+            poste = st.selectbox("Poste*", poste_options, index=poste_index)
+            if poste == "Autre":
+                poste = st.text_input("Précisez le poste", value=poste_value)
+            
+            # Service
+            service_options = ["Maintenance Mécanique", "Maintenance Électrique", "Maintenance Générale",
+                             "Maintenance Préventive", "Support Technique", "Management", "Autre"]
+            service_value = personnel.get('service', 'Maintenance Générale')
+            if service_value not in service_options:
+                service_options.append(service_value)
+            service_index = service_options.index(service_value)
+            service = st.selectbox("Service*", service_options, index=service_index)
+            if service == "Autre":
+                service = st.text_input("Précisez le service", value=service_value)
+        
+        with col4:
+            # Coût horaire
+            cout_horaire = st.number_input("Coût horaire (€)*", 
+                min_value=15.0, 
+                max_value=100.0, 
+                value=float(personnel.get('cout_horaire', 35.0)), 
+                step=0.5)
+            
+            # Niveau d'expérience
+            niveau_options = ["Débutant (<2 ans)", "Intermédiaire (2-5 ans)", "Confirmé (5-10 ans)", "Expert (>10 ans)"]
+            niveau_value = personnel.get('experience', 'Intermédiaire (2-5 ans)')
+            # Extraire juste le niveau de l'expérience
+            for option in niveau_options:
+                if niveau_value.startswith(option.split()[0]) or option in niveau_value:
+                    niveau_index = niveau_options.index(option)
+                    break
+            else:
+                niveau_index = 1  # Valeur par défaut
+            niveau_experience = st.selectbox("Niveau d'expérience", niveau_options, index=niveau_index)
+            
+            # Statut
+            statut_options = ["🟢 Actif", "🟡 Congés", "🔴 Absent", "🟣 Formation"]
+            statut_value = personnel.get('statut', '🟢 Actif')
+            if statut_value not in statut_options:
+                statut_options.append(statut_value)
+            statut_index = statut_options.index(statut_value)
+            statut = st.selectbox("Statut*", statut_options, index=statut_index)
+        
+        st.markdown("### Compétences techniques")
+        
+        # Compétences existantes
+        competences_existantes = personnel.get('competences', [])
+        competences_options = ["Soudage", "Usinage", "Électricité", "Automatisme", "PLC", "Hydraulique",
+                             "Pneumatique", "Diagnostic", "Lecture de plans", "Contrôle qualité",
+                             "Maintenance préventive", "Gestion de stock", "Formation", "Management"]
+        
+        # Ajouter les compétences existantes qui ne sont pas dans la liste
+        for comp in competences_existantes:
+            if comp not in competences_options:
+                competences_options.append(comp)
+        
+        competences = st.multiselect("Compétences principales", 
+            options=competences_options,
+            default=[c for c in competences_existantes if c in competences_options])
+        
+        # Autres compétences
+        autres_competences_existantes = [c for c in competences_existantes if c not in competences_options]
+        autres_competences = st.text_input("Autres compétences (séparées par des virgules)",
+            value=", ".join(autres_competences_existantes),
+            placeholder="Ex: Robotique, Câblage, Instrumentation")
+        
+        st.markdown("### Habilitations")
+        
+        # Habilitations existantes
+        habilitations_existantes = personnel.get('habilitations', [])
+        habilitations_options = ["Électricien H0V", "Électricien B2V", "Chariot élévateur", "Nacelle", 
+                               "Travaux en hauteur", "SST", "H0-H0V", "Permis CACES", "Autre"]
+        
+        # Ajouter les habilitations existantes qui ne sont pas dans la liste
+        for hab in habilitations_existantes:
+            if hab not in habilitations_options:
+                habilitations_options.append(hab)
+        
+        habilitations = st.multiselect("Habilitations", 
+            options=habilitations_options,
+            default=[h for h in habilitations_existantes if h in habilitations_options])
+        
+        # Autre habilitation
+        autre_habilitation_existante = next((h for h in habilitations_existantes if h not in habilitations_options), "")
+        autre_habilitation = st.text_input("Autre habilitation",
+            value=autre_habilitation_existante,
+            placeholder="Précisez si autre")
+        
+        st.markdown("### Diplômes et certifications")
+        
+        diplome = st.text_input("Diplôme le plus élevé",
+            value=personnel.get('diplome', ''),
+            placeholder="Ex: BTS Maintenance Industrielle")
+        
+        specialite = st.text_input("Spécialisation",
+            value=personnel.get('specialite', ''),
+            placeholder="Ex: Automatisme et Informatique Industrielle")
+        
+        # Notes
+        notes = st.text_area("Notes et observations",
+            value=personnel.get('notes', ''),
+            placeholder="Informations complémentaires...")
+        
+        col_submit1, col_submit2, col_submit3 = st.columns(3)
+        with col_submit1:
+            submitted = st.form_submit_button("💾 Enregistrer les modifications", type="primary")
+        with col_submit2:
+            cancel = st.form_submit_button("❌ Annuler")
+        with col_submit3:
+            delete = st.form_submit_button("🗑️ Supprimer", type="secondary")
+        
+        if submitted:
+            if nom and matricule and telephone and email and poste and service:
+                # Vérifier si le matricule est unique (sauf pour le technicien en cours)
+                matricule_existe = any(
+                    p["matricule"] == matricule and p["id"] != personnel["id"] 
+                    for p in st.session_state.personnels
+                )
+                if matricule_existe:
+                    st.error(f"❌ Le matricule {matricule} existe déjà pour un autre technicien !")
+                    return
+                
+                # Calcul de l'expérience mise à jour
+                today = datetime.date.today()
+                if isinstance(date_embauche, datetime.date):
+                    annees_experience = today.year - date_embauche.year
+                    if today.month < date_embauche.month or (today.month == date_embauche.month and today.day < date_embauche.day):
+                        annees_experience -= 1
+                    experience = f"{annees_experience} an(s) - {niveau_experience}"
+                else:
+                    experience = niveau_experience
+                
+                # Fusionner les compétences
+                toutes_competences = competences.copy()
+                if autres_competences:
+                    autres = [c.strip() for c in autres_competences.split(",") if c.strip()]
+                    toutes_competences.extend(autres)
+                
+                # Fusionner les habilitations
+                toutes_habilitations = habilitations.copy()
+                if autre_habilitation:
+                    toutes_habilitations.append(autre_habilitation)
+                
+                # Mettre à jour le personnel dans la liste
+                for i, p in enumerate(st.session_state.personnels):
+                    if p['id'] == personnel['id']:
+                        st.session_state.personnels[i] = {
+                            "id": personnel['id'],
+                            "nom": nom,
+                            "matricule": matricule,
+                            "poste": poste,
+                            "service": service,
+                            "cout_horaire": float(cout_horaire),
+                            "statut": statut,
+                            "experience": experience,
+                            "competences": toutes_competences,
+                            "habilitations": toutes_habilitations,
+                            "date_embauche": date_embauche.isoformat(),
+                            "date_naissance": date_naissance.isoformat() if date_naissance else None,
+                            "telephone": telephone,
+                            "email": email,
+                            "type_contrat": type_contrat,
+                            "adresse": adresse,
+                            "diplome": diplome,
+                            "specialite": specialite,
+                            "notes": notes,
+                            "date_creation": personnel.get('date_creation', datetime.datetime.now().isoformat()),
+                            "derniere_evaluation": datetime.date.today().isoformat(),
+                            "date_modification": datetime.datetime.now().isoformat()
+                        }
+                        break
+                
+                st.success(f"✅ Technicien {nom} modifié avec succès !")
+                st.balloons()
+                
+                # Afficher un résumé des modifications
+                with st.expander("📋 Voir le détail des modifications"):
+                    changes = []
+                    if nom != personnel.get('nom'): changes.append(f"Nom: {personnel.get('nom')} → {nom}")
+                    if poste != personnel.get('poste'): changes.append(f"Poste: {personnel.get('poste')} → {poste}")
+                    if service != personnel.get('service'): changes.append(f"Service: {personnel.get('service')} → {service}")
+                    if cout_horaire != personnel.get('cout_horaire'): changes.append(f"Coût: {personnel.get('cout_horaire')}€ → {cout_horaire}€")
+                    
+                    if changes:
+                        st.write("**Changements apportés:**")
+                        for change in changes:
+                            st.write(f"- {change}")
+                    else:
+                        st.info("Aucun changement significatif détecté")
+                
+                # Attendre 2 secondes puis revenir à la liste
+                time.sleep(2)
+                st.session_state.editing_personnel = None
+                st.rerun()
+            else:
+                st.error("Veuillez remplir tous les champs obligatoires (*)")
+        
+        elif cancel:
+            st.session_state.editing_personnel = None
+            st.rerun()
+        
+        elif delete:
+            # Demander confirmation pour la suppression
+            st.warning(f"⚠️ Êtes-vous sûr de vouloir supprimer {personnel['nom']} ?")
+            col_del1, col_del2 = st.columns(2)
+            with col_del1:
+                if st.button(f"✅ Oui, supprimer définitivement", key=f"delete_confirm_{personnel['id']}"):
+                    # Supprimer de la liste
+                    st.session_state.personnels = [
+                        p for p in st.session_state.personnels 
+                        if p['id'] != personnel['id']
+                    ]
+                    st.success(f"✅ Technicien {personnel['nom']} supprimé avec succès")
+                    time.sleep(1)
+                    st.session_state.editing_personnel = None
+                    st.rerun()
+            with col_del2:
+                if st.button(f"❌ Annuler la suppression", key=f"delete_cancel_{personnel['id']}"):
+                    st.rerun()
 
 def show_gestion_habilitations():
     """Gestion des habilitations du personnel"""
