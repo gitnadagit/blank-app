@@ -2209,6 +2209,10 @@ def show_ajouter_technicien():
     """Formulaire pour ajouter un nouveau technicien"""
     st.subheader("➕ Ajouter un Nouveau Membre du Personnel")
     
+    # Variable pour suivre si un technicien vient d'être ajouté
+    technicien_ajoute = False
+    nouveau_technicien_data = None
+    
     with st.form("form_ajouter_technicien"):
         st.markdown("### Informations personnelles")
         
@@ -2307,7 +2311,7 @@ def show_ajouter_technicien():
                     else:
                         nouvel_id = 1
                     
-                    personnel_data = {
+                    nouveau_technicien_data = {
                         "id": nouvel_id,
                         "nom": nom,
                         "matricule": matricule,
@@ -2332,41 +2336,56 @@ def show_ajouter_technicien():
                     }
                     
                     # Ajouter à la liste
-                    st.session_state.setdefault('personnels', []).append(personnel_data)
+                    st.session_state.setdefault('personnels', []).append(nouveau_technicien_data)
+                    
+                    technicien_ajoute = True
+                    st.session_state.last_added_technicien = nouveau_technicien_data
                     
                     st.success(f"✅ Technicien {nom} ajouté avec succès !")
                     st.balloons()
                     st.info(f"Matricule: {matricule} | Service: {service}")
-                    
-                    # Afficher un résumé
-                    with st.expander("📋 Voir le détail du technicien ajouté"):
-                        col_sum1, col_sum2 = st.columns(2)
-                        with col_sum1:
-                            st.write(f"**Nom:** {nom}")
-                            st.write(f"**Matricule:** {matricule}")
-                            st.write(f"**Poste:** {poste}")
-                            st.write(f"**Service:** {service}")
-                            st.write(f"**Coût horaire:** {cout_horaire} €")
-                        
-                        with col_sum2:
-                            st.write(f"**Statut:** {statut}")
-                            st.write(f"**Expérience:** {experience}")
-                            st.write(f"**Type contrat:** {type_contrat}")
-                            st.write(f"**Date embauche:** {date_embauche}")
-                            st.write(f"**Compétences:** {', '.join(toutes_competences[:3])}...")
-                    
-                    # Boutons d'action
-                    col_btn1, col_btn2 = st.columns(2)
-                    with col_btn1:
-                        if st.button("➕ Ajouter un autre technicien"):
-                            st.rerun()
-                    with col_btn2:
-                        if st.button("📋 Voir la liste des techniciens"):
-                            # Changer d'onglet via session state
-                            st.session_state.selected_personnel_tab = "tab1"
-                            st.rerun()
             else:
                 st.error("Veuillez remplir tous les champs obligatoires (*)")
+    
+    # Afficher les boutons d'action APRÈS le formulaire (en dehors)
+    if technicien_ajoute and nouveau_technicien_data:
+        st.markdown("---")
+        
+        # Afficher un résumé
+        with st.expander("📋 Voir le détail du technicien ajouté"):
+            col_sum1, col_sum2 = st.columns(2)
+            with col_sum1:
+                st.write(f"**Nom:** {nouveau_technicien_data['nom']}")
+                st.write(f"**Matricule:** {nouveau_technicien_data['matricule']}")
+                st.write(f"**Poste:** {nouveau_technicien_data['poste']}")
+                st.write(f"**Service:** {nouveau_technicien_data['service']}")
+                st.write(f"**Coût horaire:** {nouveau_technicien_data['cout_horaire']} €")
+            
+            with col_sum2:
+                st.write(f"**Statut:** {nouveau_technicien_data['statut']}")
+                st.write(f"**Expérience:** {nouveau_technicien_data['experience']}")
+                st.write(f"**Type contrat:** {nouveau_technicien_data['type_contrat']}")
+                st.write(f"**Date embauche:** {nouveau_technicien_data['date_embauche'][:10]}")
+                st.write(f"**Compétences:** {', '.join(nouveau_technicien_data['competences'][:3])}...")
+        
+        # Boutons d'action - EN DEHORS du formulaire
+        col_btn1, col_btn2 = st.columns(2)
+        with col_btn1:
+            if st.button("➕ Ajouter un autre technicien", key="add_another_tech"):
+                # Réinitialiser le formulaire en rechargeant la page
+                st.rerun()
+        
+        with col_btn2:
+            if st.button("📋 Voir la liste des techniciens", key="view_tech_list"):
+                # Stocker l'état pour afficher l'onglet liste
+                st.session_state.show_tech_list = True
+                st.rerun()
+    
+    # Si on doit afficher la liste après ajout
+    if st.session_state.get('show_tech_list', False):
+        st.session_state.show_tech_list = False
+        # Afficher directement la liste
+        show_liste_personnel()
 
 def show_modifier_technicien(personnel):
     """Affiche le formulaire pour modifier un technicien existant"""
