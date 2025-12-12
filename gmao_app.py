@@ -1991,8 +1991,7 @@ def show_soustraitants():
         else:
             st.info("Aucun sous-traitant")
 
-# ========== GESTION DES PERSONNELS ==========
-# ========== GESTION DES PERSONNELS ==========
+# ========== GESTION DES PERSONNELS (VERSION PERSISTANTE) ==========
 def show_personnels_management():
     """Page de gestion des personnels"""
     st.title("👥 Gestion des Personnels")
@@ -2026,58 +2025,8 @@ def show_liste_personnel():
     """Affiche la liste du personnel"""
     st.subheader("📋 Liste des Techniciens et Opérateurs")
     
-    # Initialiser si nécessaire
-    if 'personnels' not in st.session_state:
-        # Données de démonstration
-        st.session_state.personnels = [
-            {
-                "id": 1,
-                "nom": "Jean Dupont",
-                "matricule": "TECH-001",
-                "poste": "Technicien Senior",
-                "service": "Maintenance Mécanique",
-                "cout_horaire": 45.50,
-                "statut": "🟢 Actif",
-                "experience": "8 ans",
-                "competences": ["Soudage", "Usinage", "Diagnostic"],
-                "habilitations": ["Électricien H0V", "Chariot élévateur", "Travaux en hauteur"],
-                "date_embauche": "2016-03-15",
-                "derniere_evaluation": "2024-10-15",
-                "notes": "Très bon technicien, autonome"
-            },
-            {
-                "id": 2,
-                "nom": "Marie Martin",
-                "matricule": "TECH-002",
-                "poste": "Technicienne Électricité",
-                "service": "Maintenance Électrique",
-                "cout_horaire": 42.00,
-                "statut": "🟢 Actif",
-                "experience": "6 ans",
-                "competences": ["Automatisme", "PLC", "Schémas électriques"],
-                "habilitations": ["Électricien B2V", "Habilitation H0-H0V", "Nacelle"],
-                "date_embauche": "2018-05-22",
-                "derniere_evaluation": "2024-09-20",
-                "notes": "Spécialiste automates"
-            },
-            {
-                "id": 3,
-                "nom": "Paul Bernard",
-                "matricule": "TECH-003",
-                "poste": "Technicien Polyvalent",
-                "service": "Maintenance Générale",
-                "cout_horaire": 38.00,
-                "statut": "🟡 Congés",
-                "experience": "4 ans",
-                "competences": ["Hydraulique", "Pneumatique", "Mécanique générale"],
-                "habilitations": ["Chariot élévateur", "SST", "Permis nacelle"],
-                "date_embauche": "2020-08-10",
-                "derniere_evaluation": "2024-08-05",
-                "notes": "En formation automatisme"
-            }
-        ]
-    
-    personnels = st.session_state.personnels
+    # Récupérer les personnels depuis DataManager
+    personnels = data_manager.get_all_personnels()
     
     if not personnels:
         st.info("Aucun personnel enregistré. Ajoutez votre premier technicien !")
@@ -2191,11 +2140,8 @@ def show_liste_personnel():
                         col_conf1, col_conf2 = st.columns(2)
                         with col_conf1:
                             if st.button(f"✅ Oui", key=f"confirm_yes_{personnel['id']}"):
-                                # Supprimer de la liste
-                                st.session_state.personnels = [
-                                    p for p in st.session_state.personnels 
-                                    if p['id'] != personnel['id']
-                                ]
+                                # Supprimer via DataManager
+                                data_manager.delete_personnel(personnel['id'])
                                 st.success(f"Technicien {personnel['nom']} supprimé avec succès")
                                 time.sleep(1)
                                 st.rerun()
@@ -2208,10 +2154,6 @@ def show_liste_personnel():
 def show_ajouter_technicien():
     """Formulaire pour ajouter un nouveau technicien"""
     st.subheader("➕ Ajouter un Nouveau Membre du Personnel")
-    
-    # Variable pour suivre si un technicien vient d'être ajouté
-    technicien_ajoute = False
-    nouveau_technicien_data = None
     
     with st.form("form_ajouter_technicien"):
         st.markdown("### Informations personnelles")
@@ -2281,7 +2223,7 @@ def show_ajouter_technicien():
         if submitted:
             if nom and matricule and telephone and email and poste and service:
                 # Vérifier si le matricule existe déjà
-                personnels = st.session_state.get('personnels', [])
+                personnels = data_manager.get_all_personnels()
                 matricule_existe = any(p.get("matricule") == matricule for p in personnels)
                 
                 if matricule_existe:
@@ -2305,14 +2247,7 @@ def show_ajouter_technicien():
                     if autre_habilitation:
                         toutes_habilitations.append(autre_habilitation)
                     
-                    # Calculer le nouvel ID
-                    if personnels:
-                        nouvel_id = max(p.get("id", 0) for p in personnels) + 1
-                    else:
-                        nouvel_id = 1
-                    
-                    nouveau_technicien_data = {
-                        "id": nouvel_id,
+                    personnel_data = {
                         "nom": nom,
                         "matricule": matricule,
                         "poste": poste,
@@ -2335,57 +2270,39 @@ def show_ajouter_technicien():
                         "derniere_evaluation": datetime.date.today().isoformat()
                     }
                     
-                    # Ajouter à la liste
-                    st.session_state.setdefault('personnels', []).append(nouveau_technicien_data)
-                    
-                    technicien_ajoute = True
-                    st.session_state.last_added_technicien = nouveau_technicien_data
+                    # Ajouter via DataManager
+                    nouveau_id = data_manager.add_personnel(personnel_data)
                     
                     st.success(f"✅ Technicien {nom} ajouté avec succès !")
                     st.balloons()
                     st.info(f"Matricule: {matricule} | Service: {service}")
+                    
+                    # Afficher un résumé
+                    with st.expander("📋 Voir le détail du technicien ajouté"):
+                        col_sum1, col_sum2 = st.columns(2)
+                        with col_sum1:
+                            st.write(f"**Nom:** {nom}")
+                            st.write(f"**Matricule:** {matricule}")
+                            st.write(f"**Poste:** {poste}")
+                            st.write(f"**Service:** {service}")
+                            st.write(f"**Coût horaire:** {cout_horaire} €")
+                        
+                        with col_sum2:
+                            st.write(f"**Statut:** {statut}")
+                            st.write(f"**Expérience:** {experience}")
+                            st.write(f"**Type contrat:** {type_contrat}")
+                            st.write(f"**Date embauche:** {date_embauche}")
+                            st.write(f"**Compétences:** {', '.join(toutes_competences[:3])}...")
+                    
+                    # Attendre 3 secondes puis réinitialiser
+                    time.sleep(3)
+                    st.rerun()
             else:
                 st.error("Veuillez remplir tous les champs obligatoires (*)")
     
-    # Afficher les boutons d'action APRÈS le formulaire (en dehors)
-    if technicien_ajoute and nouveau_technicien_data:
-        st.markdown("---")
-        
-        # Afficher un résumé
-        with st.expander("📋 Voir le détail du technicien ajouté"):
-            col_sum1, col_sum2 = st.columns(2)
-            with col_sum1:
-                st.write(f"**Nom:** {nouveau_technicien_data['nom']}")
-                st.write(f"**Matricule:** {nouveau_technicien_data['matricule']}")
-                st.write(f"**Poste:** {nouveau_technicien_data['poste']}")
-                st.write(f"**Service:** {nouveau_technicien_data['service']}")
-                st.write(f"**Coût horaire:** {nouveau_technicien_data['cout_horaire']} €")
-            
-            with col_sum2:
-                st.write(f"**Statut:** {nouveau_technicien_data['statut']}")
-                st.write(f"**Expérience:** {nouveau_technicien_data['experience']}")
-                st.write(f"**Type contrat:** {nouveau_technicien_data['type_contrat']}")
-                st.write(f"**Date embauche:** {nouveau_technicien_data['date_embauche'][:10]}")
-                st.write(f"**Compétences:** {', '.join(nouveau_technicien_data['competences'][:3])}...")
-        
-        # Boutons d'action - EN DEHORS du formulaire
-        col_btn1, col_btn2 = st.columns(2)
-        with col_btn1:
-            if st.button("➕ Ajouter un autre technicien", key="add_another_tech"):
-                # Réinitialiser le formulaire en rechargeant la page
-                st.rerun()
-        
-        with col_btn2:
-            if st.button("📋 Voir la liste des techniciens", key="view_tech_list"):
-                # Stocker l'état pour afficher l'onglet liste
-                st.session_state.show_tech_list = True
-                st.rerun()
-    
-    # Si on doit afficher la liste après ajout
-    if st.session_state.get('show_tech_list', False):
-        st.session_state.show_tech_list = False
-        # Afficher directement la liste
-        show_liste_personnel()
+    # Bouton pour voir la liste
+    if st.button("📋 Voir la liste des techniciens"):
+        st.info("Revenez à l'onglet 'Liste du Personnel' pour voir tous les techniciens")
 
 def show_modifier_technicien(personnel):
     """Affiche le formulaire pour modifier un technicien existant"""
@@ -2552,8 +2469,9 @@ def show_modifier_technicien(personnel):
         if submitted:
             if nom and matricule and telephone and email and poste and service:
                 # Vérifier si le matricule est unique (sauf pour le technicien en cours)
+                personnels = data_manager.get_all_personnels()
                 matricule_existe = False
-                for p in st.session_state.personnels:
+                for p in personnels:
                     if p["matricule"] == matricule and p["id"] != personnel["id"]:
                         matricule_existe = True
                         break
@@ -2579,34 +2497,34 @@ def show_modifier_technicien(personnel):
                     if autre_habilitation:
                         toutes_habilitations.append(autre_habilitation.strip())
                     
-                    # Mettre à jour le personnel dans la liste
-                    for i, p in enumerate(st.session_state.personnels):
-                        if p['id'] == personnel['id']:
-                            st.session_state.personnels[i] = {
-                                "id": personnel['id'],
-                                "nom": nom,
-                                "matricule": matricule,
-                                "poste": poste,
-                                "service": service,
-                                "cout_horaire": float(cout_horaire),
-                                "statut": statut,
-                                "experience": experience,
-                                "competences": toutes_competences,
-                                "habilitations": toutes_habilitations,
-                                "date_embauche": date_embauche.isoformat(),
-                                "date_naissance": date_naissance.isoformat(),
-                                "telephone": telephone,
-                                "email": email,
-                                "type_contrat": type_contrat,
-                                "adresse": adresse,
-                                "diplome": diplome,
-                                "specialite": specialite,
-                                "notes": notes,
-                                "date_creation": personnel.get('date_creation', datetime.datetime.now().isoformat()),
-                                "derniere_evaluation": datetime.date.today().isoformat(),
-                                "date_modification": datetime.datetime.now().isoformat()
-                            }
-                            break
+                    # Mettre à jour le personnel
+                    personnel_data = {
+                        "id": personnel['id'],
+                        "nom": nom,
+                        "matricule": matricule,
+                        "poste": poste,
+                        "service": service,
+                        "cout_horaire": float(cout_horaire),
+                        "statut": statut,
+                        "experience": experience,
+                        "competences": toutes_competences,
+                        "habilitations": toutes_habilitations,
+                        "date_embauche": date_embauche.isoformat(),
+                        "date_naissance": date_naissance.isoformat(),
+                        "telephone": telephone,
+                        "email": email,
+                        "type_contrat": type_contrat,
+                        "adresse": adresse,
+                        "diplome": diplome,
+                        "specialite": specialite,
+                        "notes": notes,
+                        "date_creation": personnel.get('date_creation', datetime.datetime.now().isoformat()),
+                        "derniere_evaluation": datetime.date.today().isoformat(),
+                        "date_modification": datetime.datetime.now().isoformat()
+                    }
+                    
+                    # Mettre à jour via DataManager
+                    data_manager.update_personnel(personnel['id'], personnel_data)
                     
                     st.success(f"✅ Technicien {nom} modifié avec succès !")
                     st.balloons()
@@ -2642,7 +2560,7 @@ def show_habilitations_par_personne():
     """Affiche les habilitations par personne"""
     st.markdown("### 📋 Habilitations par Technicien")
     
-    personnels = st.session_state.get('personnels', [])
+    personnels = data_manager.get_all_personnels()
     
     if not personnels:
         st.info("Aucun technicien enregistré")
@@ -2683,7 +2601,7 @@ def show_statistiques_personnel():
     """Affiche les statistiques du personnel"""
     st.subheader("📊 Statistiques du Personnel")
     
-    personnels = st.session_state.get('personnels', [])
+    personnels = data_manager.get_all_personnels()
     
     if not personnels:
         st.info("Aucune statistique disponible")
