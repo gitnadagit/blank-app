@@ -66,7 +66,7 @@ class DataManager:
         return [
             {
                 "id": 1,
-                "nom": "Jean Dupont",
+                "nom": "Ali ben salah",
                 "matricule": "TECH-001",
                 "poste": "Technicien Senior",
                 "service": "Maintenance Mécanique",
@@ -151,7 +151,7 @@ class DataManager:
                 "username": "technicien",
                 "password_hash": self.hash_password("tech123"),
                 "role": "technicien",
-                "full_name": "Jean Dupont",
+                "full_name": "Ali ben salah",
                 "email": "jean.dupont@gmao.com",
                 "avatar": "🔧",
                 "last_login": None,
@@ -240,7 +240,7 @@ class DataManager:
                     "prix_acquisition": 450.00,
                     "valeur_actuelle": 380.00,
                     "disponibilite": "🟢 Disponible",
-                    "dernier_utilisateur": "Jean Dupont",
+                    "dernier_utilisateur": "Ali ben salah",
                     "date_dernier_emprunt": "2024-11-20",
                     "utilisation": "Montage/Démontage boulons lourds",
                     "consommables_associes": "Douilles 1/2\", Cliquet",
@@ -632,7 +632,7 @@ def show_emprunts_management():
                 outillage_id = None
         
         with col2:
-            utilisateur = st.selectbox("Utilisateur*", ["Jean Dupont", "Marie Martin", "Paul Bernard", "Sophie Laurent", "Autre"])
+            utilisateur = st.selectbox("Utilisateur*", ["Ali ben salah", "Marie Martin", "Paul Bernard", "Sophie Laurent", "Autre"])
             if utilisateur == "Autre":
                 utilisateur = st.text_input("Nom utilisateur")
         
@@ -875,7 +875,7 @@ def show_bons_travail_correctifs():
     
     with col3:
         technicien_filter = st.multiselect("Technicien", 
-            ["Jean Dupont", "Marie Martin", "Paul Bernard", "Sophie Laurent"])
+            ["Ali ben salah", "Marie Martin", "Paul Bernard", "Sophie Laurent"])
     
     # Bouton pour créer un nouveau BT
     if st.button("➕ Créer un nouveau BT", type="primary"):
@@ -894,7 +894,7 @@ def show_bons_travail_correctifs():
             "equipement": "Pompe centrifuge P-101",
             "reference": "EQUIP-023",
             "type": "Mécanique",
-            "technicien": "Jean Dupont",
+            "technicien": "Ali ben salah",
             "date_creation": "2024-11-25",
             "date_debut": "2024-11-26",
             "date_fin": "2024-11-26",
@@ -1038,7 +1038,7 @@ def show_planning_preventif():
             "equipement": "Pompe centrifuge P-101",
             "type": "Mensuelle",
             "date_prevue": "2024-12-02",
-            "technicien": "Jean Dupont",
+            "technicien": "Ali ben salah",
             "duree_estimee": "2h",
             "etat": "🟢 Planifié",
             "derniere_realisation": "2024-11-02"
@@ -1123,7 +1123,7 @@ def show_bons_preventifs():
             "id": "BT-P-001",
             "equipement": "Pompe centrifuge P-101",
             "type": "Mensuelle",
-            "technicien": "Jean Dupont",
+            "technicien": "Ali ben salah",
             "date_planifiee": "2024-12-02",
             "date_realisation": None,
             "statut": "🟢 Planifié",
@@ -1196,7 +1196,7 @@ def show_generer_bt(demande_data):
             st.markdown("#### Informations BT")
             bt_numero = st.text_input("Numéro BT", f"BT-C-{int(time.time())}")
             technicien_assign = st.selectbox("Technicien assigné*",
-                ["Jean Dupont", "Marie Martin", "Paul Bernard", "Sophie Laurent", "À affecter"])
+                ["Ali ben salah", "Marie Martin", "Paul Bernard", "Sophie Laurent", "À affecter"])
             date_intervention = st.date_input("Date prévue d'intervention*", datetime.date.today())
             temps_estime = st.selectbox("Temps estimé*", ["1h", "2h", "4h", "8h", "1 jour", "Plus"])
         
@@ -1277,7 +1277,7 @@ def show_creer_bt_correctif():
         col3, col4 = st.columns(2)
         with col3:
             technicien = st.selectbox("Technicien responsable*",
-                ["Jean Dupont", "Marie Martin", "Paul Bernard", "Sophie Laurent"])
+                ["Ali ben salah", "Marie Martin", "Paul Bernard", "Sophie Laurent"])
             date_planifiee = st.date_input("Date planifiée*", datetime.date.today())
         
         with col4:
@@ -1432,7 +1432,7 @@ def show_details_bt_preventif(bt_data):
     # Tableau d'historique simulé
     historique = pd.DataFrame({
         'Date': ['2024-11-02', '2024-10-02', '2024-09-02'],
-        'Technicien': ['Jean Dupont', 'Jean Dupont', 'Paul Bernard'],
+        'Technicien': ['Ali ben salah', 'Ali ben salah', 'Paul Bernard'],
         'Statut': ['Réalisé', 'Réalisé', 'Réalisé'],
         'Commentaire': ['OK', 'Roulements à surveiller', 'OK']
     })
@@ -1446,7 +1446,7 @@ def show_historique_preventif(plan_data):
     historique_data = [
         {
             "date": "2024-11-02",
-            "technicien": "Jean Dupont",
+            "technicien": "Ali ben salah",
             "type": plan_data["type"],
             "statut": "✅ Réalisé",
             "duree": "2h",
@@ -1454,7 +1454,7 @@ def show_historique_preventif(plan_data):
         },
         {
             "date": "2024-10-02",
-            "technicien": "Jean Dupont",
+            "technicien": "Ali ben salah",
             "type": plan_data["type"],
             "statut": "✅ Réalisé",
             "duree": "1h45",
@@ -1551,7 +1551,7 @@ def show_planifier_intervention():
             frequence = st.number_input("Fréquence (jours)*", 7, 365, 30, 7)
             date_premiere = st.date_input("Date première intervention*", datetime.date.today())
             technicien = st.selectbox("Technicien responsable",
-                ["Jean Dupont", "Marie Martin", "Paul Bernard", "Sophie Laurent", "Rotation"])
+                ["Ali ben salah", "Marie Martin", "Paul Bernard", "Sophie Laurent", "Rotation"])
         
         # Description des tâches
         description_taches = st.text_area("Tâches à réaliser*", height=100,
@@ -2239,7 +2239,7 @@ def show_ajouter_technicien():
         
         col1, col2 = st.columns(2)
         with col1:
-            nom = st.text_input("Nom complet*", placeholder="Ex: Jean Dupont")
+            nom = st.text_input("Nom complet*", placeholder="Ex: "Ali ben salah")
             matricule = st.text_input("Matricule*", placeholder="Ex: TECH-006")
             date_naissance = st.date_input("Date de naissance", datetime.date(1990, 1, 1))
             adresse = st.text_area("Adresse", placeholder="Adresse complète...")
