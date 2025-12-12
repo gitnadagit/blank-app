@@ -23,6 +23,7 @@ class DataManager:
         self.users_file = self.data_dir / "users.json"
         self.tiers_file = self.data_dir / "tiers.json"
         self.outillages_file = self.data_dir / "outillages.json"
+        self.personnels_file = self.data_dir / "personnels.json"  
         
         self.load_all_data()
     
@@ -51,6 +52,84 @@ class DataManager:
         else:
             self.outillages = self.create_default_outillages()
             self.save_outillages()
+
+     # Personnels
+        if self.personnels_file.exists():
+            with open(self.personnels_file, 'r', encoding='utf-8') as f:
+                self.personnels = json.load(f)
+        else:
+            self.personnels = self.create_default_personnels()
+            self.save_personnels()
+    
+    def create_default_personnels(self):
+        """Crée les personnels par défaut"""
+        return [
+            {
+                "id": 1,
+                "nom": "Jean Dupont",
+                "matricule": "TECH-001",
+                "poste": "Technicien Senior",
+                "service": "Maintenance Mécanique",
+                "cout_horaire": 45.50,
+                "statut": "🟢 Actif",
+                "experience": "8 ans",
+                "competences": ["Soudage", "Usinage", "Diagnostic"],
+                "habilitations": ["Électricien H0V", "Chariot élévateur", "Travaux en hauteur"],
+                "date_embauche": "2016-03-15",
+                "derniere_evaluation": "2024-10-15",
+                "notes": "Très bon technicien, autonome"
+            },
+            {
+                "id": 2,
+                "nom": "Marie Martin",
+                "matricule": "TECH-002",
+                "poste": "Technicienne Électricité",
+                "service": "Maintenance Électrique",
+                "cout_horaire": 42.00,
+                "statut": "🟢 Actif",
+                "experience": "6 ans",
+                "competences": ["Automatisme", "PLC", "Schémas électriques"],
+                "habilitations": ["Électricien B2V", "Habilitation H0-H0V", "Nacelle"],
+                "date_embauche": "2018-05-22",
+                "derniere_evaluation": "2024-09-20",
+                "notes": "Spécialiste automates"
+            }
+        ]
+    
+    def save_personnels(self):
+        """Sauvegarde les personnels"""
+        with open(self.personnels_file, 'w', encoding='utf-8') as f:
+            json.dump(self.personnels, f, ensure_ascii=False, indent=2)
+    
+    def get_all_personnels(self):
+        """Retourne tous les personnels"""
+        return self.personnels
+    
+    def add_personnel(self, personnel_data):
+        """Ajoute un nouveau personnel"""
+        # Calculer le nouvel ID
+        if self.personnels:
+            max_id = max([p["id"] for p in self.personnels], default=0)
+            personnel_data["id"] = max_id + 1
+        else:
+            personnel_data["id"] = 1
+        
+        self.personnels.append(personnel_data)
+        self.save_personnels()
+        return personnel_data["id"]
+    
+    def update_personnel(self, personnel_id, personnel_data):
+        """Met à jour un personnel"""
+        for i, personnel in enumerate(self.personnels):
+            if personnel["id"] == personnel_id:
+                self.personnels[i] = personnel_data
+                break
+        self.save_personnels()
+    
+    def delete_personnel(self, personnel_id):
+        """Supprime un personnel"""
+        self.personnels = [p for p in self.personnels if p["id"] != personnel_id]
+        self.save_personnels()
     
     def create_default_users(self):
         """Crée les utilisateurs par défaut"""
