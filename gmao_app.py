@@ -2239,7 +2239,7 @@ def show_ajouter_technicien():
         
         col1, col2 = st.columns(2)
         with col1:
-            nom = st.text_input("Nom complet*", placeholder="Ex: "Ali ben salah")
+            nom = st.text_input("Nom complet*", placeholder="Ex: Ali ben salah")
             matricule = st.text_input("Matricule*", placeholder="Ex: TECH-006")
             date_naissance = st.date_input("Date de naissance", datetime.date(1990, 1, 1))
             adresse = st.text_area("Adresse", placeholder="Adresse complète...")
