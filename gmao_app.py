@@ -126,8 +126,8 @@ class DataManager:
                 "specialite": "Management de la Qualité",
                 "date_creation": "2024-01-01T00:00:00",
                 "date_naissance": "1990-07-15"
-            }
-             {
+            },
+            {
             "id": 3,
             "nom": "Mohamed Trabelsi",
             "matricule": "PER-003",
