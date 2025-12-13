@@ -2160,6 +2160,13 @@ def show_personnels_management():
     """Page de gestion des personnels"""
     st.title("👥 Gestion du Personnel")
     
+    # Bouton pour réinitialiser (seulement visible pour admin)
+    user_role = st.session_state.user.get("role", "")
+    if user_role == "admin":
+        if st.sidebar.button("🔄 Réinitialiser les personnels", type="secondary"):
+            data_manager.reset_personnels()
+            st.rerun()
+    
     # Vérifier si on est en mode édition
     if 'editing_personnel' in st.session_state and st.session_state.editing_personnel:
         show_modifier_technicien(st.session_state.editing_personnel)
