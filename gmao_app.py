@@ -8,7 +8,7 @@ from pathlib import Path
 
 # ========== CONFIGURATION ==========
 st.set_page_config(
-    page_title="GMAO Pro + Outillages",
+    page_title="GMAO Pro",
     page_icon="🛠️",
     layout="wide",
     initial_sidebar_state="collapsed"
