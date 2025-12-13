@@ -997,7 +997,7 @@ def show_bons_travail_correctifs():
     
     with col3:
         technicien_filter = st.multiselect("Technicien", 
-            ["Ali ben salah", "Marie Martin", "Paul Bernard", "Sophie Laurent"])
+            ["Ali ben salah", "Fatma Jebali", "Mohamed Trabelsi", "Karim Chaouch"])
     
     # Bouton pour créer un nouveau BT
     if st.button("➕ Créer un nouveau BT", type="primary"):
@@ -1017,9 +1017,9 @@ def show_bons_travail_correctifs():
             "reference": "EQUIP-023",
             "type": "Mécanique",
             "technicien": "Ali ben salah",
-            "date_creation": "2024-11-25",
-            "date_debut": "2024-11-26",
-            "date_fin": "2024-11-26",
+            "date_creation": "2025-12-13",
+            "date_debut": "2025-12-13",
+            "date_fin": "",
             "statut": "🔵 En cours",
             "priorite": "Haute",
             "temps_estime": "4h",
@@ -1030,10 +1030,10 @@ def show_bons_travail_correctifs():
             "equipement": "Convoyeur bande C-205",
             "reference": "EQUIP-045",
             "type": "Électrique",
-            "technicien": "Marie Martin",
-            "date_creation": "2024-11-24",
-            "date_debut": "2024-11-25",
-            "date_fin": "2024-11-25",
+            "technicien": "Fatma Jebali",
+            "date_creation": "2025-11-25",
+            "date_debut": "2025-11-25",
+            "date_fin": "2025-11-26",
             "statut": "🟢 Terminé",
             "priorite": "Normale",
             "temps_estime": "2h",
