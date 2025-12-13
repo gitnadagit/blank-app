@@ -444,6 +444,11 @@ class DataManager:
     def get_soustraitants(self):
         """Retourne tous les sous-traitants"""
         return pd.DataFrame(self.tiers["soustraitants"])
+    def reset_personnels(self):
+        """Réinitialise les personnels avec les données par défaut"""
+        self.personnels = self.create_default_personnels()
+        self.save_personnels()
+        st.success("✅ Personnels réinitialisés avec les données tunisiennes !")
 
 # Initialiser le gestionnaire de données
 data_manager = DataManager()
