@@ -1159,29 +1159,29 @@ def show_planning_preventif():
         {
             "equipement": "Pompe centrifuge P-101",
             "type": "Mensuelle",
-            "date_prevue": "2024-12-02",
+            "date_prevue": "2025-12-02",
             "technicien": "Ali ben salah",
             "duree_estimee": "2h",
             "etat": "🟢 Planifié",
-            "derniere_realisation": "2024-11-02"
+            "derniere_realisation": "2025-11-02"
         },
         {
             "equipement": "Convoyeur bande C-205",
             "type": "Hebdomadaire",
-            "date_prevue": "2024-12-03",
+            "date_prevue": "2025-12-15",
             "technicien": "Marie Martin",
             "duree_estimee": "1h",
             "etat": "🟢 Planifié",
-            "derniere_realisation": "2024-11-26"
+            "derniere_realisation": "2025-12-08"
         },
         {
             "equipement": "Compresseur d'air COMP-01",
             "type": "Trimestrielle",
-            "date_prevue": "2024-12-10",
+            "date_prevue": "2025-12-13",
             "technicien": "Paul Bernard",
             "duree_estimee": "4h",
             "etat": "🟡 En cours",
-            "derniere_realisation": "2024-09-10"
+            "derniere_realisation": "2025-09-10"
         }
     ]
     
@@ -1246,7 +1246,7 @@ def show_bons_preventifs():
             "equipement": "Pompe centrifuge P-101",
             "type": "Mensuelle",
             "technicien": "Ali ben salah",
-            "date_planifiee": "2024-12-02",
+            "date_planifiee": "2025-12-20",
             "date_realisation": None,
             "statut": "🟢 Planifié",
             "checklist": ["Vérifier vibrations", "Contrôler température", "Graisser roulements"]
@@ -1256,7 +1256,7 @@ def show_bons_preventifs():
             "equipement": "Convoyeur bande C-205",
             "type": "Hebdomadaire",
             "technicien": "Marie Martin",
-            "date_planifiee": "2024-12-03",
+            "date_planifiee": "2025-12-18",
             "date_realisation": None,
             "statut": "🟢 Planifié",
             "checklist": ["Vérifier tension courroie", "Nettoyer rouleaux", "Contrôler alignement"]
