@@ -127,6 +127,96 @@ class DataManager:
                 "date_creation": "2024-01-01T00:00:00",
                 "date_naissance": "1990-07-15"
             }
+             {
+            "id": 3,
+            "nom": "Mohamed Trabelsi",
+            "matricule": "PER-003",
+            "poste": "Technicien Supérieur",
+            "service": "Maintenance Automatisme",
+            "cout_horaire": 48.50,
+            "statut": "🟢 Actif",
+            "experience": "10 ans",
+            "competences": ["Automatisme Siemens", "PLC Allen Bradley", "Diagnostic Avancé", "Robotique"],
+            "habilitations": [
+                "Habilitation Électrique B2V-H2V",
+                "Certification Siemens TIA Portal",
+                "Sauveteur Secouriste du Travail (SST)",
+                "CACES 1 - Chariots élévateurs",
+                "Arabe : Langue maternelle",
+                "Français : Courant professionnel"
+            ],
+            "date_embauche": "2014-08-10",
+            "derniere_evaluation": "2024-08-05",
+            "notes": "Spécialiste automates et régulation",
+            "telephone": "+216 71 345 678",
+            "email": "mohamed.trabelsi@entreprise.tn",
+            "type_contrat": "CDI",
+            "adresse": "8 Rue Abou Kacem Chebbi, Ben Arous",
+            "diplome": "BTS Maintenance Industrielle",
+            "specialite": "Automatisme et Informatique Industrielle",
+            "date_creation": "2024-01-01T00:00:00",
+            "date_naissance": "1988-11-30"
+        },
+        {
+            "id": 4,
+            "nom": "Sonia Hammami",
+            "matricule": "PER-004",
+            "poste": "Gestionnaire de Stock",
+            "service": "Logistique & Stock",
+            "cout_horaire": 42.00,
+            "statut": "🟢 Actif",
+            "experience": "6 ans",
+            "competences": ["Gestion de stock", "CMMS", "Logistique", "Reporting", "SAP"],
+            "habilitations": [
+                "Gestion des Non-Conformités",
+                "5S - Management visuel",
+                "SAP PM (Plant Maintenance)",
+                "Power BI / Tableau - Reporting",
+                "Arabe : Langue maternelle",
+                "Français : Courant professionnel"
+            ],
+            "date_embauche": "2018-11-05",
+            "derniere_evaluation": "2024-07-30",
+            "notes": "Gère les stocks de pièces détachées",
+            "telephone": "+216 71 456 789",
+            "email": "sonia.hammami@entreprise.tn",
+            "type_contrat": "CDI",
+            "adresse": "45 Avenue de la Liberté, Tunis",
+            "diplome": "Licence en Logistique",
+            "specialite": "Gestion des Stocks Industriels",
+            "date_creation": "2024-01-01T00:00:00",
+            "date_naissance": "1992-04-25"
+        },
+        {
+            "id": 5,
+            "nom": "Karim Chaouch",
+            "matricule": "PER-005",
+            "poste": "Chef d'Équipe",
+            "service": "Maintenance Mécanique",
+            "cout_horaire": 55.00,
+            "statut": "🟢 Actif",
+            "experience": "15 ans",
+            "competences": ["Soudage TIG/MIG", "Usinage", "Management d'équipe", "Planification", "Sécurité"],
+            "habilitations": [
+                "CACES 1 - Chariots élévateurs",
+                "Soudeur Certifié ISO 9606",
+                "Sauveteur Secouriste du Travail (SST)",
+                "Travaux en Hauteur Niveau 3",
+                "Arabe : Langue maternelle",
+                "Français : Courant professionnel"
+            ],
+            "date_embauche": "2009-02-18",
+            "derniere_evaluation": "2024-06-25",
+            "notes": "Responsable équipe mécanique lourde",
+            "telephone": "+216 71 567 890",
+            "email": "karim.chaouch@entreprise.tn",
+            "type_contrat": "CDI",
+            "adresse": "32 Rue de Marrakech, Sfax",
+            "diplome": "Diplôme de Technicien Supérieur",
+            "specialite": "Mécanique Industrielle",
+            "date_creation": "2024-01-01T00:00:00",
+            "date_naissance": "1982-09-12"
+        }
         ]
     
     def save_personnels(self):
@@ -396,24 +486,7 @@ class DataManager:
     def get_soustraitants(self):
         """Retourne tous les sous-traitants"""
         return pd.DataFrame(self.tiers["soustraitants"])
-    def reset_to_tunisian_personnels(self):
-        """Force le rechargement avec les personnels tunisiens"""
-        # 1. Supprimer le fichier s'il existe
-        if self.personnels_file.exists():
-            self.personnels_file.unlink()  # Supprime le fichier
-            st.info("🗑️ Ancien fichier personnels.json supprimé")
-        
-        # 2. Recréer avec les données tunisiennes
-        self.personnels = self.create_default_personnels()
-        self.save_personnels()
-        
-        # 3. Forcer le rechargement de st.session_state
-        if 'personnels' in st.session_state:
-            del st.session_state.personnels
-        
-        st.success("✅ Personnels tunisiens chargés avec succès !")
-        return True
-
+ 
 # Initialiser le gestionnaire de données
 data_manager = DataManager()
 
