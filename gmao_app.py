@@ -1169,7 +1169,7 @@ def show_planning_preventif():
             "equipement": "Convoyeur bande C-205",
             "type": "Hebdomadaire",
             "date_prevue": "2025-12-15",
-            "technicien": "Marie Martin",
+            "technicien": "Fatma Jebali",
             "duree_estimee": "1h",
             "etat": "🟢 Planifié",
             "derniere_realisation": "2025-12-08"
@@ -1178,7 +1178,7 @@ def show_planning_preventif():
             "equipement": "Compresseur d'air COMP-01",
             "type": "Trimestrielle",
             "date_prevue": "2025-12-13",
-            "technicien": "Paul Bernard",
+            "technicien": "Mohamed Trabelsi",
             "duree_estimee": "4h",
             "etat": "🟡 En cours",
             "derniere_realisation": "2025-09-10"
@@ -1255,7 +1255,7 @@ def show_bons_preventifs():
             "id": "BT-P-002",
             "equipement": "Convoyeur bande C-205",
             "type": "Hebdomadaire",
-            "technicien": "Marie Martin",
+            "technicien": "Fatma Jebali",
             "date_planifiee": "2025-12-18",
             "date_realisation": None,
             "statut": "🟢 Planifié",
@@ -1318,7 +1318,7 @@ def show_generer_bt(demande_data):
             st.markdown("#### Informations BT")
             bt_numero = st.text_input("Numéro BT", f"BT-C-{int(time.time())}")
             technicien_assign = st.selectbox("Technicien assigné*",
-                ["Ali ben salah", "Marie Martin", "Paul Bernard", "Sophie Laurent", "À affecter"])
+                ["Ali ben salah", "Fatma Jebali", "Mohamed Trabelsi", "Sonia Hammami", "À affecter"])
             date_intervention = st.date_input("Date prévue d'intervention*", datetime.date.today())
             temps_estime = st.selectbox("Temps estimé*", ["1h", "2h", "4h", "8h", "1 jour", "Plus"])
         
@@ -1399,7 +1399,7 @@ def show_creer_bt_correctif():
         col3, col4 = st.columns(2)
         with col3:
             technicien = st.selectbox("Technicien responsable*",
-                ["Ali ben salah", "Marie Martin", "Paul Bernard", "Sophie Laurent"])
+                ["Ali ben salah", "Fatma Jebali", "Mohamed Trabelsi", "Sonia Hammami"])
             date_planifiee = st.date_input("Date planifiée*", datetime.date.today())
         
         with col4:
@@ -1553,8 +1553,8 @@ def show_details_bt_preventif(bt_data):
     st.markdown("#### Historique des interventions")
     # Tableau d'historique simulé
     historique = pd.DataFrame({
-        'Date': ['2024-11-02', '2024-10-02', '2024-09-02'],
-        'Technicien': ['Ali ben salah', 'Ali ben salah', 'Paul Bernard'],
+        'Date': ['2025-11-02', '2025-10-02', '2025-09-02'],
+        'Technicien': ['Ali ben salah', 'Mohamed Trabelsi', 'Sonia Hammami'],
         'Statut': ['Réalisé', 'Réalisé', 'Réalisé'],
         'Commentaire': ['OK', 'Roulements à surveiller', 'OK']
     })
@@ -1567,7 +1567,7 @@ def show_historique_preventif(plan_data):
     # Données d'historique simulées
     historique_data = [
         {
-            "date": "2024-11-02",
+            "date": "2025-11-02",
             "technicien": "Ali ben salah",
             "type": plan_data["type"],
             "statut": "✅ Réalisé",
@@ -1575,24 +1575,24 @@ def show_historique_preventif(plan_data):
             "observations": "Tout est normal, graissage effectué"
         },
         {
-            "date": "2024-10-02",
-            "technicien": "Ali ben salah",
+            "date": "2025-10-02",
+            "technicien": "Mohamed Trabelsi",
             "type": plan_data["type"],
             "statut": "✅ Réalisé",
             "duree": "1h45",
             "observations": "Vérification OK, pas d'anomalie"
         },
         {
-            "date": "2024-09-02",
-            "technicien": "Paul Bernard",
+            "date": "2025-09-02",
+            "technicien": "Sonia Hammami",
             "type": plan_data["type"],
             "statut": "✅ Réalisé",
             "duree": "2h15",
             "observations": "Roulements à surveiller lors de la prochaine intervention"
         },
         {
-            "date": "2024-08-02",
-            "technicien": "Marie Martin",
+            "date": "2025-08-02",
+            "technicien": "Karim Chaouch",
             "type": plan_data["type"],
             "statut": "✅ Réalisé",
             "duree": "2h",
@@ -1673,7 +1673,7 @@ def show_planifier_intervention():
             frequence = st.number_input("Fréquence (jours)*", 7, 365, 30, 7)
             date_premiere = st.date_input("Date première intervention*", datetime.date.today())
             technicien = st.selectbox("Technicien responsable",
-                ["Ali ben salah", "Marie Martin", "Paul Bernard", "Sophie Laurent", "Rotation"])
+                ["Ali ben salah", "Karim Chaouch", "Sonia Hammami", "Mohamed Trabelsi", "Fatma Jebali"])
         
         # Description des tâches
         description_taches = st.text_area("Tâches à réaliser*", height=100,
