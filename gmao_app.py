@@ -61,7 +61,7 @@ class DataManager:
             self.personnels = self.create_default_personnels()
             self.save_personnels()
     
-    def create_default_personnels(self)
+    def create_default_personnels(self):
     """Crée les personnels par défaut avec noms tunisiens"""
     return [
         {
