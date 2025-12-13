@@ -74,7 +74,7 @@ class DataManager:
             "statut": "🟢 Actif",
             "experience": "12 ans",
             "competences": ["TPM", "Lean Maintenance", "Gestion de projet", "Analyse de données"],
-            "habilitations": ["Certifié ISO 9001", "Formateur interne", "Auditeur interne"],
+            "habilitations": ["Certification ABB Automation", "Formateur interne", "SAP PM"],
             "date_embauche": "2012-05-15",
             "derniere_evaluation": "2024-10-15",
             "notes": "Responsable du département maintenance"
@@ -89,7 +89,7 @@ class DataManager:
             "statut": "🟢 Actif",
             "experience": "8 ans",
             "competences": ["Contrôle qualité", "Audit", "ISO 9001", "Reporting"],
-            "habilitations": ["Certifié ISO 9001", "Certifié ISO 14001", "Auditeur interne"],
+            "habilitations": ["Certification Lean Six Sigma Green Belt", "Gestion des Non-Conformités", "Auditeur interne"],
             "date_embauche": "2016-03-22",
             "derniere_evaluation": "2024-09-20",
             "notes": "Responsable assurance qualité maintenance"
