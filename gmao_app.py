@@ -62,120 +62,165 @@ class DataManager:
             self.save_personnels()
     
     def create_default_personnels(self):
-        """Crée les personnels par défaut avec noms tunisiens"""
-        return [
-            {
-                "id": 1,
-                "nom": "Ahmed Ben Salah",
-                "matricule": "PER-001",
-                "poste": "Ingénieur Maintenance",
-                "service": "Direction Maintenance",
-                "cout_horaire": 75.50,
-                "statut": "🟢 Actif",
-                "experience": "12 ans",
-                "competences": ["TPM", "Lean Maintenance", "Gestion de projet", "Analyse de données"],
-                "habilitations": [
-                    "Habilitation Électrique B2V-H2V",
-                    "Sauveteur Secouriste du Travail (SST)",
-                    "TPM - Total Productive Maintenance",
-                    "Certification Siemens TIA Portal",
-                    "Auditeur Qualité ISO 9001:2015",
-                    "Arabe : Langue maternelle",
-                    "Français : Courant professionnel"
-                ],
-                "date_embauche": "2012-05-15",
-                "derniere_evaluation": "2024-10-15",
-                "notes": "Responsable du département maintenance"
-            },
-            {
-                "id": 2,
-                "nom": "Fatma Jebali",
-                "matricule": "PER-002",
-                "poste": "Responsable Qualité",
-                "service": "Qualité & Contrôle",
-                "cout_horaire": 68.00,
-                "statut": "🟢 Actif",
-                "experience": "8 ans",
-                "competences": ["Contrôle qualité", "Audit", "ISO 9001", "Reporting"],
-                "habilitations": [
-                    "Auditeur Qualité ISO 9001:2015",
-                    "Lean Six Sigma Green Belt",
-                    "AMDEC - Analyse des Défaillances",
-                    "5S - Management visuel",
-                    "Arabe : Langue maternelle",
-                    "Français : Courant professionnel"
-                ],
-                "date_embauche": "2016-03-22",
-                "derniere_evaluation": "2024-09-20",
-                "notes": "Responsable assurance qualité maintenance"
-            },
-            {
-                "id": 3,
-                "nom": "Mohamed Trabelsi",
-                "matricule": "PER-003",
-                "poste": "Technicien Supérieur",
-                "service": "Maintenance Automatisme",
-                "cout_horaire": 48.50,
-                "statut": "🟢 Actif",
-                "experience": "10 ans",
-                "competences": ["Automatisme Siemens", "PLC Allen Bradley", "Diagnostic Avancé"],
-                "habilitations": [
-                    "Habilitation Électrique B2V-H2V",
-                    "Certification Siemens TIA Portal",
-                    "Sauveteur Secouriste du Travail (SST)",
-                    "CACES 1 - Chariots élévateurs",
-                    "Arabe : Langue maternelle",
-                    "Français : Courant professionnel"
-                ],
-                "date_embauche": "2014-08-10",
-                "derniere_evaluation": "2024-08-05",
-                "notes": "Spécialiste automates et régulation"
-            },
-            {
-                "id": 4,
-                "nom": "Sonia Hammami",
-                "matricule": "PER-004",
-                "poste": "Gestionnaire de Stock",
-                "service": "Logistique & Stock",
-                "cout_horaire": 42.00,
-                "statut": "🟢 Actif",
-                "experience": "6 ans",
-                "competences": ["Gestion de stock", "CMMS", "Logistique", "Reporting"],
-                "habilitations": [
-                    "Gestion des Non-Conformités",
-                    "5S - Management visuel",
-                    "SAP PM (Plant Maintenance)",
-                    "Power BI / Tableau - Reporting",
-                    "Arabe : Langue maternelle",
-                    "Français : Courant professionnel"
-                ],
-                "date_embauche": "2018-11-05",
-                "derniere_evaluation": "2024-07-30",
-                "notes": "Gère les stocks de pièces détachées"
-            },
-            {
-                "id": 5,
-                "nom": "Karim Chaouch",
-                "matricule": "PER-005",
-                "poste": "Chef d'Équipe",
-                "service": "Maintenance Mécanique",
-                "cout_horaire": 55.00,
-                "statut": "🟢 Actif",
-                "experience": "15 ans",
-                "competences": ["Soudage TIG/MIG", "Usinage", "Management d'équipe", "Planification"],
-                "habilitations": [
-                    "CACES 1 - Chariots élévateurs",
-                    "Soudeur Certifié ISO 9606",
-                    "Sauveteur Secouriste du Travail (SST)",
-                    "Travaux en Hauteur Niveau 3",
-                    "Arabe : Langue maternelle",
-                    "Français : Courant professionnel"
-                ],
-                "date_embauche": "2009-02-18",
-                "derniere_evaluation": "2024-06-25",
-                "notes": "Responsable équipe mécanique lourde"
-            }
-        ]
+    """Crée les personnels par défaut avec noms tunisiens"""
+    # LISTE COMPLÈTE DES PERSONNELS TUNISIENS
+    tunisian_personnels = [
+        {
+            "id": 1,
+            "nom": "Ahmed Ben Salah",
+            "matricule": "PER-001",
+            "poste": "Ingénieur Maintenance",
+            "service": "Direction Maintenance",
+            "cout_horaire": 75.50,
+            "statut": "🟢 Actif",
+            "experience": "12 ans",
+            "competences": ["TPM", "Lean Maintenance", "Gestion de projet", "Analyse de données"],
+            "habilitations": [
+                "Habilitation Électrique B2V-H2V",
+                "Sauveteur Secouriste du Travail (SST)",
+                "TPM - Total Productive Maintenance",
+                "Certification Siemens TIA Portal",
+                "Auditeur Qualité ISO 9001:2015",
+                "Arabe : Langue maternelle",
+                "Français : Courant professionnel"
+            ],
+            "date_embauche": "2012-05-15",
+            "derniere_evaluation": "2024-10-15",
+            "notes": "Responsable du département maintenance",
+            "telephone": "+216 71 123 456",
+            "email": "ahmed.bensalah@entreprise.tn",
+            "type_contrat": "CDI",
+            "adresse": "15 Avenue Habib Bourguiba, Tunis",
+            "diplome": "Diplôme d'Ingénieur en Maintenance Industrielle",
+            "specialite": "Génie Mécanique et Maintenance",
+            "date_creation": "2024-01-01T00:00:00",
+            "date_naissance": "1985-03-20"
+        },
+        {
+            "id": 2,
+            "nom": "Fatma Jebali",
+            "matricule": "PER-002",
+            "poste": "Responsable Qualité",
+            "service": "Qualité & Contrôle",
+            "cout_horaire": 68.00,
+            "statut": "🟢 Actif",
+            "experience": "8 ans",
+            "competences": ["Contrôle qualité", "Audit", "ISO 9001", "Reporting"],
+            "habilitations": [
+                "Auditeur Qualité ISO 9001:2015",
+                "Certifié ISO 14001:2015",
+                "Lean Six Sigma Green Belt",
+                "AMDEC - Analyse des Défaillances",
+                "5S - Management visuel",
+                "Arabe : Langue maternelle",
+                "Français : Courant professionnel",
+                "Anglais : Technique"
+            ],
+            "date_embauche": "2016-03-22",
+            "derniere_evaluation": "2024-09-20",
+            "notes": "Responsable assurance qualité maintenance",
+            "telephone": "+216 71 234 567",
+            "email": "fatma.jebali@entreprise.tn",
+            "type_contrat": "CDI",
+            "adresse": "22 Rue de Carthage, La Marsa",
+            "diplome": "Master en Qualité Industrielle",
+            "specialite": "Management de la Qualité",
+            "date_creation": "2024-01-01T00:00:00",
+            "date_naissance": "1990-07-15"
+        },
+        {
+            "id": 3,
+            "nom": "Mohamed Trabelsi",
+            "matricule": "PER-003",
+            "poste": "Technicien Supérieur",
+            "service": "Maintenance Automatisme",
+            "cout_horaire": 48.50,
+            "statut": "🟢 Actif",
+            "experience": "10 ans",
+            "competences": ["Automatisme Siemens", "PLC Allen Bradley", "Diagnostic Avancé", "Robotique"],
+            "habilitations": [
+                "Habilitation Électrique B2V-H2V",
+                "Certification Siemens TIA Portal",
+                "Sauveteur Secouriste du Travail (SST)",
+                "CACES 1 - Chariots élévateurs",
+                "Arabe : Langue maternelle",
+                "Français : Courant professionnel"
+            ],
+            "date_embauche": "2014-08-10",
+            "derniere_evaluation": "2024-08-05",
+            "notes": "Spécialiste automates et régulation",
+            "telephone": "+216 71 345 678",
+            "email": "mohamed.trabelsi@entreprise.tn",
+            "type_contrat": "CDI",
+            "adresse": "8 Rue Abou Kacem Chebbi, Ben Arous",
+            "diplome": "BTS Maintenance Industrielle",
+            "specialite": "Automatisme et Informatique Industrielle",
+            "date_creation": "2024-01-01T00:00:00",
+            "date_naissance": "1988-11-30"
+        },
+        {
+            "id": 4,
+            "nom": "Sonia Hammami",
+            "matricule": "PER-004",
+            "poste": "Gestionnaire de Stock",
+            "service": "Logistique & Stock",
+            "cout_horaire": 42.00,
+            "statut": "🟢 Actif",
+            "experience": "6 ans",
+            "competences": ["Gestion de stock", "CMMS", "Logistique", "Reporting", "SAP"],
+            "habilitations": [
+                "Gestion des Non-Conformités",
+                "5S - Management visuel",
+                "SAP PM (Plant Maintenance)",
+                "Power BI / Tableau - Reporting",
+                "Arabe : Langue maternelle",
+                "Français : Courant professionnel"
+            ],
+            "date_embauche": "2018-11-05",
+            "derniere_evaluation": "2024-07-30",
+            "notes": "Gère les stocks de pièces détachées",
+            "telephone": "+216 71 456 789",
+            "email": "sonia.hammami@entreprise.tn",
+            "type_contrat": "CDI",
+            "adresse": "45 Avenue de la Liberté, Tunis",
+            "diplome": "Licence en Logistique",
+            "specialite": "Gestion des Stocks Industriels",
+            "date_creation": "2024-01-01T00:00:00",
+            "date_naissance": "1992-04-25"
+        },
+        {
+            "id": 5,
+            "nom": "Karim Chaouch",
+            "matricule": "PER-005",
+            "poste": "Chef d'Équipe",
+            "service": "Maintenance Mécanique",
+            "cout_horaire": 55.00,
+            "statut": "🟢 Actif",
+            "experience": "15 ans",
+            "competences": ["Soudage TIG/MIG", "Usinage", "Management d'équipe", "Planification", "Sécurité"],
+            "habilitations": [
+                "CACES 1 - Chariots élévateurs",
+                "Soudeur Certifié ISO 9606",
+                "Sauveteur Secouriste du Travail (SST)",
+                "Travaux en Hauteur Niveau 3",
+                "Arabe : Langue maternelle",
+                "Français : Courant professionnel"
+            ],
+            "date_embauche": "2009-02-18",
+            "derniere_evaluation": "2024-06-25",
+            "notes": "Responsable équipe mécanique lourde",
+            "telephone": "+216 71 567 890",
+            "email": "karim.chaouch@entreprise.tn",
+            "type_contrat": "CDI",
+            "adresse": "32 Rue de Marrakech, Sfax",
+            "diplome": "Diplôme de Technicien Supérieur",
+            "specialite": "Mécanique Industrielle",
+            "date_creation": "2024-01-01T00:00:00",
+            "date_naissance": "1982-09-12"
+        }
+    ]
+    
+    return tunisian_personnels
     
     def save_personnels(self):
         """Sauvegarde les personnels"""
@@ -444,11 +489,23 @@ class DataManager:
     def get_soustraitants(self):
         """Retourne tous les sous-traitants"""
         return pd.DataFrame(self.tiers["soustraitants"])
-    def reset_personnels(self):
-        """Réinitialise les personnels avec les données par défaut"""
+    def reset_to_tunisian_personnels(self):
+        """Force le rechargement avec les personnels tunisiens"""
+        # 1. Supprimer le fichier s'il existe
+        if self.personnels_file.exists():
+            self.personnels_file.unlink()  # Supprime le fichier
+            st.info("🗑️ Ancien fichier personnels.json supprimé")
+        
+        # 2. Recréer avec les données tunisiennes
         self.personnels = self.create_default_personnels()
         self.save_personnels()
-        st.success("✅ Personnels réinitialisés avec les données tunisiennes !")
+        
+        # 3. Forcer le rechargement de st.session_state
+        if 'personnels' in st.session_state:
+            del st.session_state.personnels
+        
+        st.success("✅ Personnels tunisiens chargés avec succès !")
+        return True
 
 # Initialiser le gestionnaire de données
 data_manager = DataManager()
@@ -2160,12 +2217,17 @@ def show_personnels_management():
     """Page de gestion des personnels"""
     st.title("👥 Gestion du Personnel")
     
-    # Bouton pour réinitialiser (seulement visible pour admin)
-    user_role = st.session_state.user.get("role", "")
-    if user_role == "admin":
-        if st.sidebar.button("🔄 Réinitialiser les personnels", type="secondary"):
-            data_manager.reset_personnels()
-            st.rerun()
+    # === AJOUTE CETTE SECTION ===
+    # Bouton de réinitialisation (visible uniquement pour admin)
+    if st.session_state.user.get("role") == "admin":
+        col_reset1, col_reset2 = st.columns([6, 1])
+        with col_reset2:
+            if st.button("🔄", help="Réinitialiser avec noms tunisiens", key="reset_tunisian"):
+                if st.button("✅ Confirmer", key="confirm_reset"):
+                    success = data_manager.reset_to_tunisian_personnels()
+                    if success:
+                        time.sleep(2)
+                        st.rerun()
     
     # Vérifier si on est en mode édition
     if 'editing_personnel' in st.session_state and st.session_state.editing_personnel:
