@@ -62,39 +62,84 @@ class DataManager:
             self.save_personnels()
     
     def create_default_personnels(self):
-        """Crée les personnels par défaut"""
-        return [
-            {
-                "id": 1,
-                "nom": "Ali ben salah",
-                "matricule": "TECH-001",
-                "poste": "Technicien Senior",
-                "service": "Maintenance Mécanique",
-                "cout_horaire": 45.50,
-                "statut": "🟢 Actif",
-                "experience": "8 ans",
-                "competences": ["Soudage", "Usinage", "Diagnostic"],
-                "habilitations": ["Électricien H0V", "Chariot élévateur", "Travaux en hauteur"],
-                "date_embauche": "2016-03-15",
-                "derniere_evaluation": "2024-10-15",
-                "notes": "Très bon technicien, autonome"
-            },
-            {
-                "id": 2,
-                "nom": "Marie Martin",
-                "matricule": "TECH-002",
-                "poste": "Technicienne Électricité",
-                "service": "Maintenance Électrique",
-                "cout_horaire": 42.00,
-                "statut": "🟢 Actif",
-                "experience": "6 ans",
-                "competences": ["Automatisme", "PLC", "Schémas électriques"],
-                "habilitations": ["Électricien B2V", "Habilitation H0-H0V", "Nacelle"],
-                "date_embauche": "2018-05-22",
-                "derniere_evaluation": "2024-09-20",
-                "notes": "Spécialiste automates"
-            }
-        ]
+    """Crée les personnels par défaut avec noms tunisiens"""
+    return [
+        {
+            "id": 1,
+            "nom": "Ahmed Ben Salah",
+            "matricule": "PER-001",
+            "poste": "Ingénieur Maintenance",
+            "service": "Direction Maintenance",
+            "cout_horaire": 75.50,
+            "statut": "🟢 Actif",
+            "experience": "12 ans",
+            "competences": ["TPM", "Lean Maintenance", "Gestion de projet", "Analyse de données"],
+            "habilitations": ["Certifié ISO 9001", "Formateur interne", "Auditeur interne"],
+            "date_embauche": "2012-05-15",
+            "derniere_evaluation": "2024-10-15",
+            "notes": "Responsable du département maintenance"
+        },
+        {
+            "id": 2,
+            "nom": "Fatma Jebali",
+            "matricule": "PER-002",
+            "poste": "Responsable Qualité",
+            "service": "Qualité & Contrôle",
+            "cout_horaire": 68.00,
+            "statut": "🟢 Actif",
+            "experience": "8 ans",
+            "competences": ["Contrôle qualité", "Audit", "ISO 9001", "Reporting"],
+            "habilitations": ["Certifié ISO 9001", "Certifié ISO 14001", "Auditeur interne"],
+            "date_embauche": "2016-03-22",
+            "derniere_evaluation": "2024-09-20",
+            "notes": "Responsable assurance qualité maintenance"
+        },
+        {
+            "id": 3,
+            "nom": "Mohamed Trabelsi",
+            "matricule": "PER-003",
+            "poste": "Technicien Supérieur",
+            "service": "Maintenance Automatisme",
+            "cout_horaire": 48.50,
+            "statut": "🟢 Actif",
+            "experience": "10 ans",
+            "competences": ["Automatisme Siemens", "PLC Allen Bradley", "Diagnostic Avancé"],
+            "habilitations": ["Électricien H0V B2V BR", "Certification Siemens", "SST"],
+            "date_embauche": "2014-08-10",
+            "derniere_evaluation": "2024-08-05",
+            "notes": "Spécialiste automates et régulation"
+        },
+        {
+            "id": 4,
+            "nom": "Sonia Hammami",
+            "matricule": "PER-004",
+            "poste": "Gestionnaire de Stock",
+            "service": "Logistique & Stock",
+            "cout_horaire": 42.00,
+            "statut": "🟢 Actif",
+            "experience": "6 ans",
+            "competences": ["Gestion de stock", "CMMS", "Logistique", "Reporting"],
+            "habilitations": ["Certification stock management", "Formation SAP"],
+            "date_embauche": "2018-11-05",
+            "derniere_evaluation": "2024-07-30",
+            "notes": "Gère les stocks de pièces détachées"
+        },
+        {
+            "id": 5,
+            "nom": "Karim Chaouch",
+            "matricule": "PER-005",
+            "poste": "Chef d'Équipe",
+            "service": "Maintenance Mécanique",
+            "cout_horaire": 55.00,
+            "statut": "🟢 Actif",
+            "experience": "15 ans",
+            "competences": ["Soudage TIG/MIG", "Usinage", "Management d'équipe", "Planification"],
+            "habilitations": ["Chariot élévateur CACES", "Soudage certifié", "SST"],
+            "date_embauche": "2009-02-18",
+            "derniere_evaluation": "2024-06-25",
+            "notes": "Responsable équipe mécanique lourde"
+        }
+    ]
     
     def save_personnels(self):
         """Sauvegarde les personnels"""
@@ -2070,10 +2115,10 @@ def show_soustraitants():
         else:
             st.info("Aucun sous-traitant")
 
-# ========== GESTION DES PERSONNELS (VERSION PERSISTANTE) ==========
+# ========== GESTION DES PERSONNELS (VERSION PERSISTANTE - NOMS TUNISIENS) ==========
 def show_personnels_management():
     """Page de gestion des personnels"""
-    st.title("👥 Gestion des Personnels")
+    st.title("👥 Gestion du Personnel")
     
     # Vérifier si on est en mode édition
     if 'editing_personnel' in st.session_state and st.session_state.editing_personnel:
@@ -2083,7 +2128,7 @@ def show_personnels_management():
     # Onglets principaux
     tab1, tab2, tab3, tab4 = st.tabs([
         "📋 Liste du Personnel", 
-        "➕ Ajouter un Technicien", 
+        "➕ Ajouter un Personnel", 
         "🎓 Habilitations", 
         "📊 Statistiques"
     ])
@@ -2092,7 +2137,7 @@ def show_personnels_management():
         show_liste_personnel()
     
     with tab2:
-        show_ajouter_technicien()
+        show_ajouter_personnel()
     
     with tab3:
         show_gestion_habilitations()
@@ -2102,20 +2147,20 @@ def show_personnels_management():
 
 def show_liste_personnel():
     """Affiche la liste du personnel"""
-    st.subheader("📋 Liste des Techniciens et Opérateurs")
+    st.subheader("📋 Liste du Personnel")
     
     # Récupérer les personnels depuis DataManager
     personnels = data_manager.get_all_personnels()
     
     if not personnels:
-        st.info("Aucun personnel enregistré. Ajoutez votre premier technicien !")
+        st.info("Aucun personnel enregistré. Ajoutez votre premier membre !")
         return
     
     # Filtres
     col1, col2, col3 = st.columns(3)
     with col1:
         services = sorted(list(set([p.get("service", "Non spécifié") for p in personnels])))
-        service_filter = st.multiselect("Service", services)
+        service_filter = st.multiselect("Service/Département", services)
     
     with col2:
         statuts = sorted(list(set([p.get("statut", "Non spécifié") for p in personnels])))
@@ -2141,7 +2186,7 @@ def show_liste_personnel():
         ]
     
     # Métriques
-    st.markdown(f"**Total:** {len(personnels)} techniciens | **Filtrés:** {len(filtered_personnels)}")
+    st.markdown(f"**Total:** {len(personnels)} membres | **Filtrés:** {len(filtered_personnels)}")
     
     # Affichage
     if not filtered_personnels:
@@ -2221,7 +2266,7 @@ def show_liste_personnel():
                             if st.button(f"✅ Oui", key=f"confirm_yes_{personnel['id']}"):
                                 # Supprimer via DataManager
                                 data_manager.delete_personnel(personnel['id'])
-                                st.success(f"Technicien {personnel['nom']} supprimé avec succès")
+                                st.success(f"Personnel {personnel['nom']} supprimé avec succès")
                                 time.sleep(1)
                                 st.rerun()
                         with col_conf2:
@@ -2230,74 +2275,99 @@ def show_liste_personnel():
             
             st.markdown("---")
 
-def show_ajouter_technicien():
-    """Formulaire pour ajouter un nouveau technicien"""
+def show_ajouter_personnel():
+    """Formulaire pour ajouter un nouveau membre du personnel"""
     st.subheader("➕ Ajouter un Nouveau Membre du Personnel")
     
-    with st.form("form_ajouter_technicien"):
+    with st.form("form_ajouter_personnel"):
         st.markdown("### Informations personnelles")
         
         col1, col2 = st.columns(2)
         with col1:
-            nom = st.text_input("Nom complet*", placeholder="Ex: Ali ben salah")
-            matricule = st.text_input("Matricule*", placeholder="Ex: TECH-006")
+            nom = st.text_input("Nom complet*", placeholder="Ex: Ahmed Ben Salah")
+            matricule = st.text_input("Matricule*", placeholder="Ex: PER-006")
             date_naissance = st.date_input("Date de naissance", datetime.date(1990, 1, 1))
             adresse = st.text_area("Adresse", placeholder="Adresse complète...")
         
         with col2:
-            telephone = st.text_input("Téléphone*", placeholder="Ex: 06 12 34 56 78")
-            email = st.text_input("Email professionnel*", placeholder="Ex: jean.dupont@entreprise.com")
+            telephone = st.text_input("Téléphone*", placeholder="Ex: +216 23 456 789")
+            email = st.text_input("Email professionnel*", placeholder="Ex: ahmed.bensalah@entreprise.tn")
             date_embauche = st.date_input("Date d'embauche*", datetime.date.today())
             type_contrat = st.selectbox("Type de contrat*",
-                ["CDI", "CDD", "Intérim", "Apprentissage", "Stage"])
+                ["CDI", "CDD", "Intérim", "Apprentissage", "Stage", "Consultant"])
         
         st.markdown("### Informations professionnelles")
         col3, col4 = st.columns(2)
         with col3:
-            poste = st.selectbox("Poste*",
-                ["Technicien Mécanicien", "Technicien Électricien", "Technicien Polyvalent",
-                 "Chef d'Équipe", "Apprenti", "Stagiaire", "Autre"])
+            # Poste avec nouvelles options
+            poste = st.selectbox("Poste/Fonction*",
+                [
+                    "Ingénieur Maintenance", "Ingénieur Électrique", "Ingénieur Mécanique",
+                    "Responsable Maintenance", "Responsable d'Atelier", "Responsable Qualité",
+                    "Technicien Supérieur", "Technicien Mécanicien", "Technicien Électricien", 
+                    "Technicien Polyvalent", "Technicien Instrumentation",
+                    "Chef d'Équipe", "Superviseur", "Contremaître",
+                    "Gestionnaire de Stock", "Planificateur Maintenance", "Coordinateur",
+                    "Apprenti", "Stagiaire", "Opérateur", "Autre"
+                ])
             if poste == "Autre":
                 poste = st.text_input("Précisez le poste")
             
-            service = st.selectbox("Service*",
-                ["Maintenance Mécanique", "Maintenance Électrique", "Maintenance Générale",
-                 "Maintenance Préventive", "Support Technique", "Management"])
+            # Service/Département avec nouvelles options
+            service = st.selectbox("Service/Département*",
+                [
+                    "Direction Maintenance", "Maintenance Industrielle", "Maintenance Mécanique",
+                    "Maintenance Électrique", "Maintenance Automatisme", "Maintenance Instrumentation",
+                    "Maintenance Préventive", "Maintenance Corrective", "Gestion de Parc",
+                    "Qualité & Contrôle", "Sécurité Industrielle", "Logistique & Stock",
+                    "Production", "Ingénierie", "Support Technique", "Formation", "Management"
+                ])
         
         with col4:
-            cout_horaire = st.number_input("Coût horaire (€)*", 15.0, 100.0, 35.0, 0.5)
+            cout_horaire = st.number_input("Coût horaire (€)*", 15.0, 150.0, 45.0, 0.5)
             niveau_experience = st.selectbox("Niveau d'expérience",
-                ["Débutant (<2 ans)", "Intermédiaire (2-5 ans)", "Confirmé (5-10 ans)", "Expert (>10 ans)"])
-            statut = st.selectbox("Statut*", ["🟢 Actif", "🟡 Congés", "🔴 Absent", "🟣 Formation"])
+                ["Débutant (<2 ans)", "Intermédiaire (2-5 ans)", "Confirmé (5-10 ans)", "Expert (>10 ans)", "Sénior (>15 ans)"])
+            statut = st.selectbox("Statut*", ["🟢 Actif", "🟡 Congés", "🔴 Absent", "🟣 Formation", "⚫ Détaché"])
         
         st.markdown("### Compétences techniques")
         competences = st.multiselect("Compétences principales",
-            ["Soudage", "Usinage", "Électricité", "Automatisme", "PLC", "Hydraulique",
-             "Pneumatique", "Diagnostic", "Lecture de plans", "Contrôle qualité",
-             "Maintenance préventive", "Gestion de stock", "Formation", "Management"])
+            [
+                "Soudage TIG/MIG", "Usinage CNC", "Électricité BT/HT", "Automatisme Siemens", 
+                "PLC Allen Bradley", "Hydraulique Industrielle", "Pneumatique", "Diagnostic Avancé",
+                "Lecture de plans", "Contrôle qualité", "Maintenance préventive", "Gestion de stock",
+                "Formation", "Management d'équipe", "Lean Maintenance", "TPM", "CMMS",
+                "Robotique", "Instrumentation", "Régulation", "Sécurité Industrielle",
+                "Gestion de projet", "Analyse de données", "Reporting", "Audit"
+            ])
         
         autres_competences = st.text_input("Autres compétences (séparées par des virgules)",
-            placeholder="Ex: Robotique, Câblage, Instrumentation")
+            placeholder="Ex: Robotique KUKA, Instrumentation Endress+Hauser, Régulation Siemens...")
         
-        st.markdown("### Habilitations")
+        st.markdown("### Habilitations & Certifications")
         habilitations = st.multiselect("Habilitations",
-            ["Électricien H0V", "Électricien B2V", "Chariot élévateur", "Nacelle", 
-             "Travaux en hauteur", "SST", "H0-H0V", "Permis CACES", "Autre"])
+            [
+                "Électricien H0V B2V BR", "Chariot élévateur CACES 1-3-5", "Nacelle CACES", 
+                "Travaux en hauteur", "SST (Sauveteur Secouriste)", "Habilitation ATEX",
+                "Certifié ISO 9001", "Certifié ISO 14001", "Certifié OHSAS 18001",
+                "Formateur interne", "Auditeur interne", "Permis poids lourd",
+                "Soudage certifié", "Certification Siemens", "Certification Rockwell",
+                "Certification Schneider", "Certification Endress+Hauser", "Autre"
+            ])
         
-        autre_habilitation = st.text_input("Autre habilitation",
+        autre_habilitation = st.text_input("Autre habilitation/certification",
             placeholder="Précisez si autre")
         
-        st.markdown("### Diplômes et certifications")
+        st.markdown("### Diplômes et formations")
         diplome = st.text_input("Diplôme le plus élevé",
-            placeholder="Ex: BTS Maintenance Industrielle")
+            placeholder="Ex: Diplôme d'Ingénieur en Maintenance Industrielle, BTS, Licence...")
         specialite = st.text_input("Spécialisation",
-            placeholder="Ex: Automatisme et Informatique Industrielle")
+            placeholder="Ex: Automatisme et Informatique Industrielle, Génie Mécanique...")
         
         # Notes
         notes = st.text_area("Notes et observations",
-            placeholder="Informations complémentaires...")
+            placeholder="Informations complémentaires, projets spécifiques, langues parlées...")
         
-        submitted = st.form_submit_button("✅ Ajouter le Technicien", type="primary")
+        submitted = st.form_submit_button("✅ Ajouter le Personnel", type="primary")
         
         if submitted:
             if nom and matricule and telephone and email and poste and service:
@@ -2352,12 +2422,12 @@ def show_ajouter_technicien():
                     # Ajouter via DataManager
                     nouveau_id = data_manager.add_personnel(personnel_data)
                     
-                    st.success(f"✅ Technicien {nom} ajouté avec succès !")
+                    st.success(f"✅ Personnel {nom} ajouté avec succès !")
                     st.balloons()
                     st.info(f"Matricule: {matricule} | Service: {service}")
                     
                     # Afficher un résumé
-                    with st.expander("📋 Voir le détail du technicien ajouté"):
+                    with st.expander("📋 Voir le détail du personnel ajouté"):
                         col_sum1, col_sum2 = st.columns(2)
                         with col_sum1:
                             st.write(f"**Nom:** {nom}")
@@ -2371,7 +2441,7 @@ def show_ajouter_technicien():
                             st.write(f"**Expérience:** {experience}")
                             st.write(f"**Type contrat:** {type_contrat}")
                             st.write(f"**Date embauche:** {date_embauche}")
-                            st.write(f"**Compétences:** {', '.join(toutes_competences[:3])}...")
+                            st.write(f"**Diplôme:** {diplome}")
                     
                     # Attendre 3 secondes puis réinitialiser
                     time.sleep(3)
@@ -2380,12 +2450,12 @@ def show_ajouter_technicien():
                 st.error("Veuillez remplir tous les champs obligatoires (*)")
     
     # Bouton pour voir la liste
-    if st.button("📋 Voir la liste des techniciens"):
-        st.info("Revenez à l'onglet 'Liste du Personnel' pour voir tous les techniciens")
+    if st.button("📋 Voir la liste du personnel"):
+        st.info("Revenez à l'onglet 'Liste du Personnel' pour voir tous les membres")
 
 def show_modifier_technicien(personnel):
-    """Affiche le formulaire pour modifier un technicien existant"""
-    st.subheader(f"✏️ Modifier le Technicien: {personnel.get('nom', '')}")
+    """Affiche le formulaire pour modifier un membre du personnel existant"""
+    st.subheader(f"✏️ Modifier le Personnel: {personnel.get('nom', '')}")
     
     # Bouton de retour
     if st.button("↩️ Retour à la liste"):
@@ -2394,7 +2464,7 @@ def show_modifier_technicien(personnel):
     
     st.markdown("---")
     
-    with st.form(f"form_modifier_technicien_{personnel['id']}"):
+    with st.form(f"form_modifier_personnel_{personnel['id']}"):
         st.markdown("### Informations personnelles")
         
         col1, col2 = st.columns(2)
@@ -2438,7 +2508,7 @@ def show_modifier_technicien(personnel):
             date_embauche = st.date_input("Date d'embauche*", value=date_embauche_default)
             
             # Type de contrat
-            type_contrat_options = ["CDI", "CDD", "Intérim", "Apprentissage", "Stage"]
+            type_contrat_options = ["CDI", "CDD", "Intérim", "Apprentissage", "Stage", "Consultant"]
             type_contrat_value = personnel.get('type_contrat', 'CDI')
             type_contrat_index = type_contrat_options.index(type_contrat_value) if type_contrat_value in type_contrat_options else 0
             type_contrat = st.selectbox("Type de contrat*", type_contrat_options, index=type_contrat_index)
@@ -2447,34 +2517,46 @@ def show_modifier_technicien(personnel):
         col3, col4 = st.columns(2)
         
         with col3:
-            # Poste
-            poste_options = ["Technicien Mécanicien", "Technicien Électricien", "Technicien Polyvalent",
-                           "Chef d'Équipe", "Apprenti", "Stagiaire", "Autre"]
+            # Poste avec nouvelles options
+            poste_options = [
+                "Ingénieur Maintenance", "Ingénieur Électrique", "Ingénieur Mécanique",
+                "Responsable Maintenance", "Responsable d'Atelier", "Responsable Qualité",
+                "Technicien Supérieur", "Technicien Mécanicien", "Technicien Électricien", 
+                "Technicien Polyvalent", "Technicien Instrumentation",
+                "Chef d'Équipe", "Superviseur", "Contremaître",
+                "Gestionnaire de Stock", "Planificateur Maintenance", "Coordinateur",
+                "Apprenti", "Stagiaire", "Opérateur", "Autre"
+            ]
             poste_value = personnel.get('poste', 'Technicien Mécanicien')
             if poste_value not in poste_options:
                 poste_options.append(poste_value)
             poste_index = poste_options.index(poste_value)
-            poste = st.selectbox("Poste*", poste_options, index=poste_index)
+            poste = st.selectbox("Poste/Fonction*", poste_options, index=poste_index)
             
-            # Service
-            service_options = ["Maintenance Mécanique", "Maintenance Électrique", "Maintenance Générale",
-                             "Maintenance Préventive", "Support Technique", "Management"]
-            service_value = personnel.get('service', 'Maintenance Générale')
+            # Service/Département avec nouvelles options
+            service_options = [
+                "Direction Maintenance", "Maintenance Industrielle", "Maintenance Mécanique",
+                "Maintenance Électrique", "Maintenance Automatisme", "Maintenance Instrumentation",
+                "Maintenance Préventive", "Maintenance Corrective", "Gestion de Parc",
+                "Qualité & Contrôle", "Sécurité Industrielle", "Logistique & Stock",
+                "Production", "Ingénierie", "Support Technique", "Formation", "Management"
+            ]
+            service_value = personnel.get('service', 'Maintenance Industrielle')
             if service_value not in service_options:
                 service_options.append(service_value)
             service_index = service_options.index(service_value)
-            service = st.selectbox("Service*", service_options, index=service_index)
+            service = st.selectbox("Service/Département*", service_options, index=service_index)
         
         with col4:
             # Coût horaire
             cout_horaire = st.number_input("Coût horaire (€)*", 
                 min_value=15.0, 
-                max_value=100.0, 
-                value=float(personnel.get('cout_horaire', 35.0)), 
+                max_value=150.0, 
+                value=float(personnel.get('cout_horaire', 45.0)), 
                 step=0.5)
             
             # Niveau d'expérience
-            niveau_options = ["Débutant (<2 ans)", "Intermédiaire (2-5 ans)", "Confirmé (5-10 ans)", "Expert (>10 ans)"]
+            niveau_options = ["Débutant (<2 ans)", "Intermédiaire (2-5 ans)", "Confirmé (5-10 ans)", "Expert (>10 ans)", "Sénior (>15 ans)"]
             experience_value = personnel.get('experience', '')
             niveau_index = 1  # Valeur par défaut
             for i, option in enumerate(niveau_options):
@@ -2484,7 +2566,7 @@ def show_modifier_technicien(personnel):
             niveau_experience = st.selectbox("Niveau d'expérience", niveau_options, index=niveau_index)
             
             # Statut
-            statut_options = ["🟢 Actif", "🟡 Congés", "🔴 Absent", "🟣 Formation"]
+            statut_options = ["🟢 Actif", "🟡 Congés", "🔴 Absent", "🟣 Formation", "⚫ Détaché"]
             statut_value = personnel.get('statut', '🟢 Actif')
             statut_index = statut_options.index(statut_value) if statut_value in statut_options else 0
             statut = st.selectbox("Statut*", statut_options, index=statut_index)
@@ -2493,9 +2575,14 @@ def show_modifier_technicien(personnel):
         
         # Compétences existantes
         competences_existantes = personnel.get('competences', [])
-        competences_options = ["Soudage", "Usinage", "Électricité", "Automatisme", "PLC", "Hydraulique",
-                             "Pneumatique", "Diagnostic", "Lecture de plans", "Contrôle qualité",
-                             "Maintenance préventive", "Gestion de stock", "Formation", "Management"]
+        competences_options = [
+            "Soudage TIG/MIG", "Usinage CNC", "Électricité BT/HT", "Automatisme Siemens", 
+            "PLC Allen Bradley", "Hydraulique Industrielle", "Pneumatique", "Diagnostic Avancé",
+            "Lecture de plans", "Contrôle qualité", "Maintenance préventive", "Gestion de stock",
+            "Formation", "Management d'équipe", "Lean Maintenance", "TPM", "CMMS",
+            "Robotique", "Instrumentation", "Régulation", "Sécurité Industrielle",
+            "Gestion de projet", "Analyse de données", "Reporting", "Audit"
+        ]
         
         # Ajouter les compétences existantes qui ne sont pas dans la liste
         for comp in competences_existantes:
@@ -2511,27 +2598,33 @@ def show_modifier_technicien(personnel):
         autres_competences = st.text_input("Autres compétences (séparées par des virgules)",
             value=", ".join(autres_competences_existantes))
         
-        st.markdown("### Habilitations")
+        st.markdown("### Habilitations & Certifications")
         
         # Habilitations existantes
         habilitations_existantes = personnel.get('habilitations', [])
-        habilitations_options = ["Électricien H0V", "Électricien B2V", "Chariot élévateur", "Nacelle", 
-                               "Travaux en hauteur", "SST", "H0-H0V", "Permis CACES", "Autre"]
+        habilitations_options = [
+            "Électricien H0V B2V BR", "Chariot élévateur CACES 1-3-5", "Nacelle CACES", 
+            "Travaux en hauteur", "SST (Sauveteur Secouriste)", "Habilitation ATEX",
+            "Certifié ISO 9001", "Certifié ISO 14001", "Certifié OHSAS 18001",
+            "Formateur interne", "Auditeur interne", "Permis poids lourd",
+            "Soudage certifié", "Certification Siemens", "Certification Rockwell",
+            "Certification Schneider", "Certification Endress+Hauser", "Autre"
+        ]
         
         # Ajouter les habilitations existantes qui ne sont pas dans la liste
         for hab in habilitations_existantes:
             if hab not in habilitations_options:
                 habilitations_options.append(hab)
         
-        habilitations = st.multiselect("Habilitations", 
+        habilitations = st.multiselect("Habilitations & Certifications", 
             options=habilitations_options,
             default=[h for h in habilitations_existantes if h in habilitations_options])
         
         # Autre habilitation
         autre_habilitation_existante = next((h for h in habilitations_existantes if h not in habilitations_options), "")
-        autre_habilitation = st.text_input("Autre habilitation", value=autre_habilitation_existante)
+        autre_habilitation = st.text_input("Autre habilitation/certification", value=autre_habilitation_existante)
         
-        st.markdown("### Diplômes et certifications")
+        st.markdown("### Diplômes et formations")
         
         diplome = st.text_input("Diplôme le plus élevé", value=personnel.get('diplome', ''))
         specialite = st.text_input("Spécialisation", value=personnel.get('specialite', ''))
@@ -2547,7 +2640,7 @@ def show_modifier_technicien(personnel):
         
         if submitted:
             if nom and matricule and telephone and email and poste and service:
-                # Vérifier si le matricule est unique (sauf pour le technicien en cours)
+                # Vérifier si le matricule est unique (sauf pour le personnel en cours)
                 personnels = data_manager.get_all_personnels()
                 matricule_existe = False
                 for p in personnels:
@@ -2556,7 +2649,7 @@ def show_modifier_technicien(personnel):
                         break
                 
                 if matricule_existe:
-                    st.error(f"❌ Le matricule {matricule} existe déjà pour un autre technicien !")
+                    st.error(f"❌ Le matricule {matricule} existe déjà pour un autre membre !")
                 else:
                     # Calcul de l'expérience mise à jour
                     today = datetime.date.today()
@@ -2605,7 +2698,7 @@ def show_modifier_technicien(personnel):
                     # Mettre à jour via DataManager
                     data_manager.update_personnel(personnel['id'], personnel_data)
                     
-                    st.success(f"✅ Technicien {nom} modifié avec succès !")
+                    st.success(f"✅ Personnel {nom} modifié avec succès !")
                     st.balloons()
                     
                     # Attendre 2 secondes puis revenir à la liste
