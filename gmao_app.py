@@ -23,7 +23,7 @@ class DataManager:
         self.users_file = self.data_dir / "users.json"
         self.tiers_file = self.data_dir / "tiers.json"
         self.outillages_file = self.data_dir / "outillages.json"
-        self.personnels_file = self.data_dir / "personnels.json"  
+        self.personnels_file = self.data_dir / "personnels.json"
         
         self.load_all_data()
     
@@ -53,7 +53,7 @@ class DataManager:
             self.outillages = self.create_default_outillages()
             self.save_outillages()
 
-     # Personnels
+        # Personnels
         if self.personnels_file.exists():
             with open(self.personnels_file, 'r', encoding='utf-8') as f:
                 self.personnels = json.load(f)
@@ -62,84 +62,120 @@ class DataManager:
             self.save_personnels()
     
     def create_default_personnels(self):
-    """Crée les personnels par défaut avec noms tunisiens"""
-    return [
-        {
-            "id": 1,
-            "nom": "Ahmed Ben Salah",
-            "matricule": "PER-001",
-            "poste": "Ingénieur Maintenance",
-            "service": "Direction Maintenance",
-            "cout_horaire": 75.50,
-            "statut": "🟢 Actif",
-            "experience": "12 ans",
-            "competences": ["TPM", "Lean Maintenance", "Gestion de projet", "Analyse de données"],
-            "habilitations": ["Certification ABB Automation", "Formateur interne", "SAP PM"],
-            "date_embauche": "2012-05-15",
-            "derniere_evaluation": "2024-10-15",
-            "notes": "Responsable du département maintenance"
-        },
-        {
-            "id": 2,
-            "nom": "Fatma Jebali",
-            "matricule": "PER-002",
-            "poste": "Responsable Qualité",
-            "service": "Qualité & Contrôle",
-            "cout_horaire": 68.00,
-            "statut": "🟢 Actif",
-            "experience": "8 ans",
-            "competences": ["Contrôle qualité", "Audit", "ISO 9001", "Reporting"],
-            "habilitations": ["Certification Lean Six Sigma Green Belt", "Gestion des Non-Conformités", "Auditeur interne"],
-            "date_embauche": "2016-03-22",
-            "derniere_evaluation": "2024-09-20",
-            "notes": "Responsable assurance qualité maintenance"
-        },
-        {
-            "id": 3,
-            "nom": "Mohamed Trabelsi",
-            "matricule": "PER-003",
-            "poste": "Technicien Supérieur",
-            "service": "Maintenance Automatisme",
-            "cout_horaire": 48.50,
-            "statut": "🟢 Actif",
-            "experience": "10 ans",
-            "competences": ["Automatisme Siemens", "PLC Allen Bradley", "Diagnostic Avancé"],
-            "habilitations": ["Électricien H0V B2V BR", "Certification Siemens", "SST"],
-            "date_embauche": "2014-08-10",
-            "derniere_evaluation": "2024-08-05",
-            "notes": "Spécialiste automates et régulation"
-        },
-        {
-            "id": 4,
-            "nom": "Sonia Hammami",
-            "matricule": "PER-004",
-            "poste": "Gestionnaire de Stock",
-            "service": "Logistique & Stock",
-            "cout_horaire": 42.00,
-            "statut": "🟢 Actif",
-            "experience": "6 ans",
-            "competences": ["Gestion de stock", "CMMS", "Logistique", "Reporting"],
-            "habilitations": ["Certification stock management", "Formation SAP"],
-            "date_embauche": "2018-11-05",
-            "derniere_evaluation": "2024-07-30",
-            "notes": "Gère les stocks de pièces détachées"
-        },
-        {
-            "id": 5,
-            "nom": "Karim Chaouch",
-            "matricule": "PER-005",
-            "poste": "Chef d'Équipe",
-            "service": "Maintenance Mécanique",
-            "cout_horaire": 55.00,
-            "statut": "🟢 Actif",
-            "experience": "15 ans",
-            "competences": ["Soudage TIG/MIG", "Usinage", "Management d'équipe", "Planification"],
-            "habilitations": ["Chariot élévateur CACES", "Soudage certifié", "SST"],
-            "date_embauche": "2009-02-18",
-            "derniere_evaluation": "2024-06-25",
-            "notes": "Responsable équipe mécanique lourde"
-        }
-    ]
+        """Crée les personnels par défaut avec noms tunisiens"""
+        return [
+            {
+                "id": 1,
+                "nom": "Ahmed Ben Salah",
+                "matricule": "PER-001",
+                "poste": "Ingénieur Maintenance",
+                "service": "Direction Maintenance",
+                "cout_horaire": 75.50,
+                "statut": "🟢 Actif",
+                "experience": "12 ans",
+                "competences": ["TPM", "Lean Maintenance", "Gestion de projet", "Analyse de données"],
+                "habilitations": [
+                    "Habilitation Électrique B2V-H2V",
+                    "Sauveteur Secouriste du Travail (SST)",
+                    "TPM - Total Productive Maintenance",
+                    "Certification Siemens TIA Portal",
+                    "Auditeur Qualité ISO 9001:2015",
+                    "Arabe : Langue maternelle",
+                    "Français : Courant professionnel"
+                ],
+                "date_embauche": "2012-05-15",
+                "derniere_evaluation": "2024-10-15",
+                "notes": "Responsable du département maintenance"
+            },
+            {
+                "id": 2,
+                "nom": "Fatma Jebali",
+                "matricule": "PER-002",
+                "poste": "Responsable Qualité",
+                "service": "Qualité & Contrôle",
+                "cout_horaire": 68.00,
+                "statut": "🟢 Actif",
+                "experience": "8 ans",
+                "competences": ["Contrôle qualité", "Audit", "ISO 9001", "Reporting"],
+                "habilitations": [
+                    "Auditeur Qualité ISO 9001:2015",
+                    "Lean Six Sigma Green Belt",
+                    "AMDEC - Analyse des Défaillances",
+                    "5S - Management visuel",
+                    "Arabe : Langue maternelle",
+                    "Français : Courant professionnel"
+                ],
+                "date_embauche": "2016-03-22",
+                "derniere_evaluation": "2024-09-20",
+                "notes": "Responsable assurance qualité maintenance"
+            },
+            {
+                "id": 3,
+                "nom": "Mohamed Trabelsi",
+                "matricule": "PER-003",
+                "poste": "Technicien Supérieur",
+                "service": "Maintenance Automatisme",
+                "cout_horaire": 48.50,
+                "statut": "🟢 Actif",
+                "experience": "10 ans",
+                "competences": ["Automatisme Siemens", "PLC Allen Bradley", "Diagnostic Avancé"],
+                "habilitations": [
+                    "Habilitation Électrique B2V-H2V",
+                    "Certification Siemens TIA Portal",
+                    "Sauveteur Secouriste du Travail (SST)",
+                    "CACES 1 - Chariots élévateurs",
+                    "Arabe : Langue maternelle",
+                    "Français : Courant professionnel"
+                ],
+                "date_embauche": "2014-08-10",
+                "derniere_evaluation": "2024-08-05",
+                "notes": "Spécialiste automates et régulation"
+            },
+            {
+                "id": 4,
+                "nom": "Sonia Hammami",
+                "matricule": "PER-004",
+                "poste": "Gestionnaire de Stock",
+                "service": "Logistique & Stock",
+                "cout_horaire": 42.00,
+                "statut": "🟢 Actif",
+                "experience": "6 ans",
+                "competences": ["Gestion de stock", "CMMS", "Logistique", "Reporting"],
+                "habilitations": [
+                    "Gestion des Non-Conformités",
+                    "5S - Management visuel",
+                    "SAP PM (Plant Maintenance)",
+                    "Power BI / Tableau - Reporting",
+                    "Arabe : Langue maternelle",
+                    "Français : Courant professionnel"
+                ],
+                "date_embauche": "2018-11-05",
+                "derniere_evaluation": "2024-07-30",
+                "notes": "Gère les stocks de pièces détachées"
+            },
+            {
+                "id": 5,
+                "nom": "Karim Chaouch",
+                "matricule": "PER-005",
+                "poste": "Chef d'Équipe",
+                "service": "Maintenance Mécanique",
+                "cout_horaire": 55.00,
+                "statut": "🟢 Actif",
+                "experience": "15 ans",
+                "competences": ["Soudage TIG/MIG", "Usinage", "Management d'équipe", "Planification"],
+                "habilitations": [
+                    "CACES 1 - Chariots élévateurs",
+                    "Soudeur Certifié ISO 9606",
+                    "Sauveteur Secouriste du Travail (SST)",
+                    "Travaux en Hauteur Niveau 3",
+                    "Arabe : Langue maternelle",
+                    "Français : Courant professionnel"
+                ],
+                "date_embauche": "2009-02-18",
+                "derniere_evaluation": "2024-06-25",
+                "notes": "Responsable équipe mécanique lourde"
+            }
+        ]
     
     def save_personnels(self):
         """Sauvegarde les personnels"""
@@ -152,7 +188,6 @@ class DataManager:
     
     def add_personnel(self, personnel_data):
         """Ajoute un nouveau personnel"""
-        # Calculer le nouvel ID
         if self.personnels:
             max_id = max([p["id"] for p in self.personnels], default=0)
             personnel_data["id"] = max_id + 1
